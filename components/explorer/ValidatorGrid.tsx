@@ -52,7 +52,7 @@ export default function ValidatorGrid() {
               </div>
               <div>
                 <div className="text-xs text-gray-600 font-mono">UPTIME</div>
-                <div className={`text-sm font-mono ${v.uptime > 99 ? 'text-[#00ff88]' : v.uptime > 95 ? 'text-[#ffaa00]' : 'text-[#ff0044]'}`}>
+                <div className={`text-sm font-mono ${v.uptime > 99 ? 'text-[#00ff88]' : v.uptime > 95 ? 'text-[#ffaa00]' : 'text-[#ff3b3b]'}`}>
                   {v.uptime.toFixed(1)}%
                 </div>
               </div>

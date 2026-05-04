@@ -28,7 +28,7 @@ export default function TerminalPanel({
   const colors = {
     info: 'text-[#00ffe1]',
     warn: 'text-[#ffaa00]',
-    error: 'text-[#ff0044]',
+    error: 'text-[#ff3b3b]',
     success: 'text-[#00ff88]',
   };
 
@@ -43,7 +43,7 @@ export default function TerminalPanel({
     <div className={cn('rounded-xl border border-[rgba(0,255,225,0.15)] bg-[rgba(0,0,0,0.5)]', className)}>
       <div className="flex items-center gap-2 px-4 py-2 border-b border-[rgba(0,255,225,0.1)]">
         <div className="flex gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-[#ff0044]" />
+          <div className="w-3 h-3 rounded-full bg-[#ff3b3b]" />
           <div className="w-3 h-3 rounded-full bg-[#ffaa00]" />
           <div className="w-3 h-3 rounded-full bg-[#00ff88]" />
         </div>

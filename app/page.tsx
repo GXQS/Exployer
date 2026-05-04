@@ -1,53 +1,52 @@
 'use client';
 import Link from 'next/link';
+import { lazy, Suspense } from 'react';
 import CommandDashboard from '@/components/explorer/CommandDashboard';
 import BlockStream from '@/components/explorer/BlockStream';
 import TransactionList from '@/components/explorer/TransactionList';
-import GlassCard from '@/components/ui/GlassCard';
-import NeonText from '@/components/ui/NeonText';
-import TpsChart from '@/components/charts/TpsChart';
+import ChartCard from '@/components/ui/ChartCard';
+import LiveIndicator from '@/components/ui/LiveIndicator';
+
+// Lazy-load chart to avoid blocking initial render
+const TpsChart = lazy(() => import('@/components/charts/TpsChart'));
 
 export default function HomePage() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-6">
       <CommandDashboard />
 
+      {/* Charts row — collapsible on mobile */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* TPS Chart */}
-        <GlassCard className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <NeonText color="cyan" size="sm" className="font-bold uppercase tracking-wider">
-              TPS Realtime
-            </NeonText>
-            <span className="text-xs font-mono text-gray-600">last 60s</span>
-          </div>
-          <TpsChart />
-        </GlassCard>
+        <ChartCard
+          title="TPS Realtime"
+          subtitle="last 60s"
+          collapsible
+        >
+          <Suspense fallback={<div className="h-48 animate-pulse bg-[rgba(255,255,255,0.03)] rounded" />}>
+            <TpsChart />
+          </Suspense>
+        </ChartCard>
 
-        {/* Block Stream Preview */}
-        <GlassCard className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <NeonText color="pink" size="sm" className="font-bold uppercase tracking-wider">
-              Live Blocks
-            </NeonText>
-            <Link href="/blocks" className="text-xs font-mono text-gray-600 hover:text-[#00ffe1] transition-colors">
+        <ChartCard
+          title="Live Blocks"
+          headerRight={
+            <Link href="/blocks" className="text-[10px] font-mono text-gray-600 hover:text-[#00ffe1] transition-colors">
               View all →
             </Link>
-          </div>
+          }
+          collapsible
+        >
           <BlockStream limit={8} compact />
-        </GlassCard>
+        </ChartCard>
       </div>
 
       {/* Recent Transactions */}
-      <GlassCard className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <NeonText color="purple" size="sm" className="font-bold uppercase tracking-wider">
-            Recent Transactions
-          </NeonText>
-          <span className="text-xs font-mono text-gray-600">live feed</span>
-        </div>
+      <ChartCard
+        title="Recent Transactions"
+        headerRight={<LiveIndicator live label="LIVE" />}
+      >
         <TransactionList limit={8} />
-      </GlassCard>
+      </ChartCard>
     </div>
   );
 }

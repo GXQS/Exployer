@@ -10,7 +10,8 @@ interface StatCardProps {
   suffix?: string;
   prefix?: string;
   icon?: ReactNode;
-  color?: 'cyan' | 'pink' | 'purple';
+  /** KPI cards use primary or secondary only */
+  color?: 'primary' | 'secondary';
   trend?: number;
   decimals?: number;
   formatFn?: (v: number) => string;
@@ -18,23 +19,22 @@ interface StatCardProps {
 }
 
 export default function StatCard({
-  label, value, suffix, prefix, icon, color = 'cyan',
+  label, value, suffix, prefix, icon, color = 'primary',
   trend, decimals = 0, formatFn, subValue
 }: StatCardProps) {
-  const colors = {
-    cyan: { text: 'text-[#00ffe1]', glow: 'cyan' as const, border: 'border-[rgba(0,255,225,0.2)]' },
-    pink: { text: 'text-[#ff00d4]', glow: 'pink' as const, border: 'border-[rgba(255,0,212,0.2)]' },
-    purple: { text: 'text-[#7a00ff]', glow: 'purple' as const, border: 'border-[rgba(122,0,255,0.2)]' },
+  const styles = {
+    primary:   { text: 'text-[#00ffe1]', glow: 'primary' as const },
+    secondary: { text: 'text-[#7a00ff]', glow: 'secondary' as const },
   };
-  const c = colors[color];
+  const s = styles[color];
 
   return (
-    <GlassCard glow={c.glow} className="p-4">
-      <div className="flex items-start justify-between mb-2">
-        <span className="text-xs font-mono text-gray-500 uppercase tracking-wider">{label}</span>
-        {icon && <div className={cn('text-sm', c.text)}>{icon}</div>}
+    <GlassCard glow={s.glow} depth={1} className="p-4 h-[110px] flex flex-col justify-between">
+      <div className="flex items-start justify-between">
+        <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">{label}</span>
+        {icon && <div className={cn('text-sm', s.text)}>{icon}</div>}
       </div>
-      <div className={cn('text-2xl font-bold font-mono', c.text)}>
+      <div className={cn('text-2xl font-bold font-mono leading-none', s.text)}>
         <AnimatedNumber
           value={value}
           decimals={decimals}
@@ -43,16 +43,16 @@ export default function StatCard({
           formatFn={formatFn}
         />
       </div>
-      <div className="flex items-center gap-2 mt-1">
+      <div className="flex items-center gap-2 h-4">
         {trend !== undefined && (
           <span className={cn(
             'text-xs font-mono',
-            trend > 0 ? 'text-[#00ff88]' : trend < 0 ? 'text-[#ff0044]' : 'text-gray-500'
+            trend > 0 ? 'text-[#00ff88]' : trend < 0 ? 'text-[#ff3b3b]' : 'text-gray-500'
           )}>
             {trend > 0 ? '▲' : trend < 0 ? '▼' : '—'} {Math.abs(trend).toFixed(1)}%
           </span>
         )}
-        {subValue && <span className="text-xs text-gray-600 font-mono">{subValue}</span>}
+        {subValue && <span className="text-[10px] text-gray-600 font-mono">{subValue}</span>}
       </div>
     </GlassCard>
   );

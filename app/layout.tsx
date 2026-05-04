@@ -13,7 +13,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="bg-[#05010a] text-gray-200 font-mono">
         <Navigation />
-        <main className="ml-16 min-h-screen">
+        {/* Desktop: offset for sidebar. Mobile: pad bottom for bottom nav. */}
+        <main className="md:ml-16 min-h-screen pb-16 md:pb-0">
           {children}
         </main>
       </body>

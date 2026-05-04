@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 interface BucketData {
@@ -8,7 +8,7 @@ interface BucketData {
   priority: 'high' | 'medium' | 'low';
 }
 
-export default function MempoolChart() {
+const MempoolChart = memo(function MempoolChart() {
   const [data, setData] = useState<BucketData[]>([
     { range: '0-10', count: 45, priority: 'high' },
     { range: '11-25', count: 89, priority: 'high' },
@@ -28,6 +28,7 @@ export default function MempoolChart() {
     return () => clearInterval(timer);
   }, []);
 
+  // accent=high priority, warning=medium, secondary=low
   const colors = { high: '#ff00d4', medium: '#ffaa00', low: '#7a00ff' };
 
   return (
@@ -64,4 +65,6 @@ export default function MempoolChart() {
       </BarChart>
     </ResponsiveContainer>
   );
-}
+});
+
+export default MempoolChart;

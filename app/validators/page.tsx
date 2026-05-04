@@ -25,12 +25,12 @@ export default function ValidatorsPage() {
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        <StatCard label="Active Validators" value={active} color="cyan" icon="⬟" />
-        <StatCard label="Avg Uptime" value={avgUptime} suffix="%" decimals={2} color="pink" icon="♡" />
+        <StatCard label="Active Validators" value={active} color="primary" icon="⬟" />
+        <StatCard label="Avg Uptime" value={avgUptime} suffix="%" decimals={2} color="secondary" icon="♡" />
         <StatCard
           label="Total Stake"
           value={totalStake}
-          color="purple"
+          color="primary"
           icon="◈"
           formatFn={v => (v / 1_000_000).toFixed(2) + 'M'}
           subValue="GXQS"

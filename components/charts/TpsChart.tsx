@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatTimestamp } from '@/lib/utils';
 
@@ -8,7 +8,7 @@ interface DataPoint {
   tps: number;
 }
 
-export default function TpsChart() {
+const TpsChart = memo(function TpsChart() {
   const [data, setData] = useState<DataPoint[]>(() =>
     Array.from({ length: 30 }, (_, i) => ({
       time: formatTimestamp(Date.now() - (29 - i) * 2000),
@@ -73,4 +73,6 @@ export default function TpsChart() {
       </AreaChart>
     </ResponsiveContainer>
   );
-}
+});
+
+export default TpsChart;
