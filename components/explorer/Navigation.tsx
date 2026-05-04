@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -82,6 +82,11 @@ export default function Navigation() {
   const pathname = usePathname();
   const [showMore, setShowMore] = useState(false);
 
+  // Close the overflow tray whenever the route changes
+  useEffect(() => {
+    setShowMore(false);
+  }, [pathname]);
+
   // Show More button as active when current path is in the overflow set
   const moreActive = overflowMobileItems.some(
     item => pathname === item.href || (item.href.length > 1 && pathname.startsWith(item.href + '/'))
@@ -145,7 +150,7 @@ export default function Navigation() {
               (showMore || moreActive) ? 'text-[#00ffe1]' : 'text-gray-600 hover:text-gray-300'
             )}
           >
-            <span className="text-base leading-none">⋯</span>
+            <span className="text-base leading-none" aria-hidden="true">⋯</span>
             <span className="text-[10px] font-mono leading-none sr-only sm:not-sr-only">MORE</span>
             {(showMore || moreActive) && (
               <div className="absolute bottom-0 w-8 h-0.5 bg-[#00ffe1] rounded-t shadow-[0_0_8px_#00ffe1]" />

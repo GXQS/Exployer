@@ -11,11 +11,15 @@ import type { ChainStats } from '@/lib/rpc';
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
+/** Thresholds for network status classification */
+const DEGRADED_BLOCK_TIME_THRESHOLD = 2.5; // seconds
+const DEGRADED_MEMPOOL_THRESHOLD    = 500;  // transactions
+
 /** Derive network status label + Tailwind color class from live stats */
 function useNetworkStatus(stats: ChainStats | undefined, error: unknown) {
   if (error) return { label: 'OFFLINE',      cls: 'text-danger'  };
   if (!stats)  return { label: 'LOADING…',   cls: 'text-gray-500' };
-  if (stats.avgBlockTime > 2.5 || stats.mempoolSize > 500)
+  if (stats.avgBlockTime > DEGRADED_BLOCK_TIME_THRESHOLD || stats.mempoolSize > DEGRADED_MEMPOOL_THRESHOLD)
                return { label: 'DEGRADED',   cls: 'text-warning'  };
                return { label: 'OPERATIONAL', cls: 'text-success'  };
 }

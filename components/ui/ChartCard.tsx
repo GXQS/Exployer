@@ -50,7 +50,10 @@ export default function ChartCard({
         </div>
       </div>
       {/* On desktop always visible; on mobile respect collapsed state */}
-      <div className={cn(collapsed ? 'hidden md:block' : 'block')}>
+      <div
+        className={cn(collapsed ? 'hidden md:block' : 'block')}
+        aria-hidden={collapsed ? 'true' : undefined}
+      >
         <Suspense fallback={<div className="h-48 animate-pulse bg-[rgba(255,255,255,0.03)] rounded" />}>
           {children}
         </Suspense>
