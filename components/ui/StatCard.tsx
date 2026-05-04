@@ -31,7 +31,7 @@ export default function StatCard({
   return (
     <GlassCard glow={s.glow} depth={1} className="p-4 h-[110px] flex flex-col justify-between">
       <div className="flex items-start justify-between">
-        <span className="text-[10px] font-mono text-gray-500 uppercase tracking-wider">{label}</span>
+        <span className="text-xs font-mono text-gray-500 uppercase tracking-wider">{label}</span>
         {icon && <div className={cn('text-sm', s.text)}>{icon}</div>}
       </div>
       <div className={cn('text-2xl font-bold font-mono leading-none', s.text)}>
@@ -52,7 +52,7 @@ export default function StatCard({
             {trend > 0 ? '▲' : trend < 0 ? '▼' : '—'} {Math.abs(trend).toFixed(1)}%
           </span>
         )}
-        {subValue && <span className="text-[10px] text-gray-600 font-mono">{subValue}</span>}
+        {subValue && <span className="text-xs text-gray-600 font-mono">{subValue}</span>}
       </div>
     </GlassCard>
   );

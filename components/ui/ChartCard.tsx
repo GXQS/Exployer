@@ -31,7 +31,7 @@ export default function ChartCard({
             {title}
           </span>
           {subtitle && (
-            <div className="text-[10px] font-mono text-gray-600 mt-0.5">{subtitle}</div>
+            <div className="text-xs font-mono text-gray-600 mt-0.5">{subtitle}</div>
           )}
         </div>
         <div className="flex items-center gap-2">

@@ -41,7 +41,7 @@ export default function ActivityFeed({ items, className, emptyMessage = 'No acti
   return (
     <div className={cn('space-y-1', className)}>
       {items.map(item => (
-        <GlassCard key={item.id} glow="primary" depth={1} className="px-4 py-2.5 flex items-center gap-3 animate-block-flow">
+        <GlassCard key={item.id} glow="primary" depth={1} className="px-4 py-2.5 flex items-center gap-3 animate-slide-in">
           {/* Accent line */}
           <div className={cn('w-0.5 h-8 rounded-full shrink-0', accentStyles[item.accentColor ?? 'primary'])} />
 

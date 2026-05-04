@@ -26,15 +26,16 @@ function NavItem({ item, pathname, mobile = false }: { item: typeof navItems[0];
     return (
       <Link
         href={item.href}
+        aria-label={item.label}
         title={item.label}
         className={cn(
-          'flex-1 flex flex-col items-center justify-center gap-0.5 py-2',
+          'flex-1 flex flex-col items-center justify-center gap-0.5 py-2 relative',
           'transition-all duration-200',
           active ? 'text-[#00ffe1]' : 'text-gray-600 hover:text-gray-300'
         )}
       >
         <span className="text-base leading-none">{item.icon}</span>
-        <span className="text-[8px] font-mono leading-none">{item.label.slice(0, 4)}</span>
+        <span className="text-[10px] font-mono leading-none sr-only sm:not-sr-only">{item.label.slice(0, 4)}</span>
         {active && (
           <div className="absolute bottom-0 w-8 h-0.5 bg-[#00ffe1] rounded-t shadow-[0_0_8px_#00ffe1]" />
         )}
@@ -56,7 +57,7 @@ function NavItem({ item, pathname, mobile = false }: { item: typeof navItems[0];
       )}
     >
       <span className="text-base leading-none">{item.icon}</span>
-      <span className="text-[8px] font-mono leading-none">{item.label.slice(0, 4)}</span>
+      <span className="text-[10px] font-mono leading-none">{item.label.slice(0, 4)}</span>
       {active && (
         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-6 bg-[#00ffe1] rounded-r shadow-[0_0_8px_#00ffe1]" />
       )}
@@ -88,7 +89,7 @@ export default function Navigation() {
         {/* Status dot */}
         <div className="flex flex-col items-center gap-1">
           <div className="w-2 h-2 rounded-full bg-[#00ff88] animate-blink shadow-[0_0_8px_rgba(0,255,136,0.8)]" />
-          <span className="text-[8px] font-mono text-gray-600">LIVE</span>
+          <span className="text-[10px] font-mono text-gray-600">LIVE</span>
         </div>
       </nav>
 
