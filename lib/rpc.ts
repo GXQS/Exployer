@@ -66,8 +66,10 @@ export interface ChainStats {
   finality: number;
 }
 
+const INITIAL_BLOCK_HEIGHT = 14_892_341;
+
 // Internal state for mock data continuity
-let currentHeight = 14_892_341;
+let currentHeight = INITIAL_BLOCK_HEIGHT;
 let lastBlockTime = Date.now() - 1500;
 const blocks: Block[] = [];
 const VALIDATOR_NAMES = [

@@ -82,8 +82,9 @@ export function predictMetric(
   const predicted = lastSmoothed + slope * horizonSteps;
   const confidence = computeConfidence(s.values, predicted);
 
+  const STABILITY_THRESHOLD = 0.01;
   const trend: Prediction['trend'] =
-    Math.abs(slope) < 0.01 * lastSmoothed ? 'stable' : slope > 0 ? 'up' : 'down';
+    Math.abs(slope) < STABILITY_THRESHOLD * lastSmoothed ? 'stable' : slope > 0 ? 'up' : 'down';
 
   return {
     metric: key,

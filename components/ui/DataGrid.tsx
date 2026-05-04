@@ -25,7 +25,7 @@ export default function DataGrid<T extends Record<string, unknown>>({
   data, columns, keyField, onRowClick, loading, emptyMessage = 'No data', className, maxHeight
 }: DataGridProps<T>) {
   return (
-    <div className={cn('overflow-auto', maxHeight && `max-h-[${maxHeight}]`, className)}>
+    <div className={cn('overflow-auto', className)} style={maxHeight ? { maxHeight } : undefined}>
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b border-[rgba(0,255,225,0.1)]">
