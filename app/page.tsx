@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import CommandDashboard from '@/components/explorer/CommandDashboard';
 import BlockStream from '@/components/explorer/BlockStream';
 import TransactionList from '@/components/explorer/TransactionList';
@@ -29,9 +30,9 @@ export default function HomePage() {
             <NeonText color="pink" size="sm" className="font-bold uppercase tracking-wider">
               Live Blocks
             </NeonText>
-            <a href="/blocks" className="text-xs font-mono text-gray-600 hover:text-[#00ffe1] transition-colors">
+            <Link href="/blocks" className="text-xs font-mono text-gray-600 hover:text-[#00ffe1] transition-colors">
               View all →
-            </a>
+            </Link>
           </div>
           <BlockStream limit={8} compact />
         </GlassCard>

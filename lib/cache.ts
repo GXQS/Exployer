@@ -46,8 +46,3 @@ class MemoryCache {
 }
 
 export const cache = new MemoryCache();
-
-// Run cleanup every 30 seconds
-if (typeof setInterval !== 'undefined') {
-  setInterval(() => cache.cleanup(), 30_000);
-}

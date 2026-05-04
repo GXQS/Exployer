@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { getValidators } from '@/lib/rpc';
 import { cache } from '@/lib/cache';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const cached = cache.get('validators');

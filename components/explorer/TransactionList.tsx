@@ -16,9 +16,9 @@ const txTypeColors: Record<string, 'cyan' | 'pink' | 'purple' | 'green'> = {
 
 export default function TransactionList({ limit = 10 }: { limit?: number }) {
   const { data: txs, isLoading } = useSWR<Transaction[]>(
-    '/api/blocks',
-    async () => {
-      const blocks = await fetch('/api/blocks?count=5').then(r => r.json());
+    `/api/blocks?count=5`,
+    async (url: string) => {
+      const blocks = await fetch(url).then(r => r.json());
       return blocks.flatMap((b: { txCount: number; height: number }) =>
         Array.from({ length: Math.min(3, b.txCount) }, () => ({
           hash: '0x' + Math.random().toString(16).slice(2).padEnd(64, '0'),
@@ -50,8 +50,8 @@ export default function TransactionList({ limit = 10 }: { limit?: number }) {
 
   return (
     <div className="space-y-1">
-      {(txs ?? []).map((tx, i) => (
-        <GlassCard key={i} className="px-4 py-2.5">
+      {(txs ?? []).map((tx) => (
+        <GlassCard key={tx.hash} className="px-4 py-2.5">
           <div className="flex items-center gap-4">
             <GlowBadge label={tx.type?.toUpperCase() ?? 'TX'} color={txTypeColors[tx.type ?? 'transfer'] ?? 'cyan'} size="sm" />
             <div className="flex-1 min-w-0">

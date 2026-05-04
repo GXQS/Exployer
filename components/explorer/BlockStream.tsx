@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useSWR from 'swr';
 import GlassCard from '@/components/ui/GlassCard';
 import GlowBadge from '@/components/ui/GlowBadge';
@@ -21,16 +21,16 @@ export default function BlockStream({ limit = 20, compact = false }: BlockStream
     { refreshInterval: 2000 }
   );
   const [newBlock, setNewBlock] = useState<number | null>(null);
-  const [prevHeight, setPrevHeight] = useState<number | null>(null);
+  const prevHeightRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (blocks && blocks.length > 0) {
       const latest = blocks[0].height;
-      if (prevHeight !== null && latest > prevHeight) {
+      if (prevHeightRef.current !== null && latest > prevHeightRef.current) {
         setNewBlock(latest);
         setTimeout(() => setNewBlock(null), 1000);
       }
-      setPrevHeight(latest);
+      prevHeightRef.current = latest;
     }
   }, [blocks]);
 

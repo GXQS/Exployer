@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
-import { getLatestBlocks, getChainStats } from '@/lib/rpc';
+import { getLatestBlocks } from '@/lib/rpc';
 import { cache } from '@/lib/cache';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const count = Math.min(50, parseInt(searchParams.get('count') ?? '20'));
+    const parsed = parseInt(searchParams.get('count') ?? '20', 10);
+    const count = Math.min(50, Number.isNaN(parsed) || parsed < 1 ? 20 : parsed);
     const cacheKey = `blocks-${count}`;
     const cached = cache.get(cacheKey);
     if (cached) {

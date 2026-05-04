@@ -27,18 +27,17 @@ export default function ValidatorGrid() {
           <GlassCard key={i} className="p-4 animate-pulse">
             <div className="h-4 bg-[rgba(255,255,255,0.05)] rounded mb-2" />
             <div className="h-3 bg-[rgba(255,255,255,0.03)] rounded w-2/3" />
-          </GlassCard>
-        ))}
+          </GlassCard>        ))}
       </div>
     );
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-      {(validators ?? []).map((v, i) => {
+      {(validators ?? []).map((v) => {
         const cfg = statusConfig[v.status];
         return (
-          <GlassCard key={i} className="p-4">
+          <GlassCard key={v.address} className="p-4">
             <div className="flex items-start justify-between mb-3">
               <div>
                 <div className="text-[#00ffe1] font-mono font-bold text-sm">{v.name}</div>

@@ -8,8 +8,9 @@ import { formatHash, formatGas, timeAgo } from '@/lib/utils';
 import type { Transaction } from '@/lib/rpc';
 
 export default function TxPage() {
-  const params = useParams();
-  const hash = params.hash as string;
+  const rawParams = useParams();
+  const rawHash = rawParams.hash;
+  const hash = Array.isArray(rawHash) ? rawHash[0] : rawHash ?? '';
   const [tx, setTx] = useState<Transaction | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -62,7 +63,7 @@ export default function TxPage() {
             { label: 'Type', value: <GlowBadge label={tx.type?.toUpperCase() ?? 'TX'} color="cyan" /> },
             { label: 'Timestamp', value: timeAgo(tx.timestamp) },
           ].map(row => (
-            <div key={row.label} className="flex items-center gap-4 py-2 border-b border-[rgba(255,255,255,0.03)]">
+    <div key={row.label} className="flex items-center gap-4 py-2 border-b border-[rgba(255,255,255,0.03)]">
               <div className="w-24 text-xs font-mono text-gray-600 uppercase shrink-0">{row.label}</div>
               <div className="text-sm font-mono text-gray-200 flex-1">{row.value}</div>
             </div>
