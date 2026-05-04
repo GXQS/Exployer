@@ -4,10 +4,10 @@ import { cache } from '@/lib/cache';
 
 export async function GET(
   request: Request,
-  { params }: { params: { hash: string } }
+  { params }: { params: Promise<{ hash: string }> }
 ) {
   try {
-    const { hash } = params;
+    const { hash } = await params;
     const cacheKey = `tx-${hash}`;
     const cached = cache.get(cacheKey);
     if (cached) return NextResponse.json(cached);

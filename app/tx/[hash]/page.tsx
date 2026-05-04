@@ -1,21 +1,24 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
 import GlassCard from '@/components/ui/GlassCard';
 import NeonText from '@/components/ui/NeonText';
 import GlowBadge from '@/components/ui/GlowBadge';
 import { formatHash, formatGas, timeAgo } from '@/lib/utils';
 import type { Transaction } from '@/lib/rpc';
 
-export default function TxPage({ params }: { params: { hash: string } }) {
+export default function TxPage() {
+  const params = useParams();
+  const hash = params.hash as string;
   const [tx, setTx] = useState<Transaction | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/tx/${params.hash}`)
+    fetch(`/api/tx/${hash}`)
       .then(r => r.json())
       .then(setTx)
       .finally(() => setLoading(false));
-  }, [params.hash]);
+  }, [hash]);
 
   if (loading) return (
     <div className="p-6">
@@ -42,7 +45,7 @@ export default function TxPage({ params }: { params: { hash: string } }) {
     <div className="p-6 space-y-6">
       <div>
         <NeonText size="2xl" color="cyan" className="font-bold block">TRANSACTION</NeonText>
-        <div className="text-gray-600 font-mono text-xs mt-1">{formatHash(params.hash, 16)}</div>
+        <div className="text-gray-600 font-mono text-xs mt-1">{formatHash(hash, 16)}</div>
       </div>
 
       <GlassCard className="p-6">
