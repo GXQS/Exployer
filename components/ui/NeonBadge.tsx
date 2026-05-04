@@ -11,13 +11,14 @@ interface NeonBadgeProps {
   pulse?: boolean;
 }
 
+// Consume design tokens from tailwind.config.js — no hard-coded hex values
 const colorStyles: Record<BadgeColor, string> = {
-  primary:   'bg-[rgba(0,255,225,0.1)]   border-[rgba(0,255,225,0.4)]   text-[#00ffe1]',
-  secondary: 'bg-[rgba(122,0,255,0.1)]   border-[rgba(122,0,255,0.4)]   text-[#7a00ff]',
-  accent:    'bg-[rgba(255,0,212,0.1)]   border-[rgba(255,0,212,0.4)]   text-[#ff00d4]',
-  success:   'bg-[rgba(0,255,136,0.1)]   border-[rgba(0,255,136,0.4)]   text-[#00ff88]',
-  warning:   'bg-[rgba(255,170,0,0.1)]   border-[rgba(255,170,0,0.4)]   text-[#ffaa00]',
-  danger:    'bg-[rgba(255,59,59,0.1)]   border-[rgba(255,59,59,0.4)]   text-[#ff3b3b]',
+  primary:   'bg-primary/10   border-primary/40   text-primary',
+  secondary: 'bg-secondary/10 border-secondary/40 text-secondary',
+  accent:    'bg-accent/10    border-accent/40    text-accent',
+  success:   'bg-success/10   border-success/40   text-success',
+  warning:   'bg-warning/10   border-warning/40   text-warning',
+  danger:    'bg-danger/10    border-danger/40    text-danger',
 };
 
 const pulseStyles: Record<BadgeColor, string> = {

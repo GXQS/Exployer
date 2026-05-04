@@ -1,5 +1,5 @@
 'use client';
-import { ReactNode, useState, lazy, Suspense } from 'react';
+import { ReactNode, useState, Suspense } from 'react';
 import GlassCard from './GlassCard';
 import { cn } from '@/lib/utils';
 
@@ -9,7 +9,7 @@ interface ChartCardProps {
   children: ReactNode;
   className?: string;
   headerRight?: ReactNode;
-  /** Allow chart to be collapsed on mobile */
+  /** Allow chart to be collapsed on mobile (toggle is hidden on md+ screens) */
   collapsible?: boolean;
 }
 
@@ -36,22 +36,25 @@ export default function ChartCard({
         </div>
         <div className="flex items-center gap-2">
           {headerRight}
+          {/* Collapse toggle is mobile-only; desktop always shows the chart */}
           {collapsible && (
             <button
               onClick={() => setCollapsed(c => !c)}
-              className="text-gray-600 hover:text-gray-300 transition-colors text-xs font-mono px-2 py-1 rounded border border-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.2)]"
+              className="md:hidden text-gray-600 hover:text-gray-300 transition-colors text-xs font-mono px-2 py-1 rounded border border-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.2)]"
               aria-label={collapsed ? 'Expand chart' : 'Collapse chart'}
+              aria-expanded={!collapsed}
             >
               {collapsed ? '▼ show' : '▲ hide'}
             </button>
           )}
         </div>
       </div>
-      {!collapsed && (
+      {/* On desktop always visible; on mobile respect collapsed state */}
+      <div className={cn(collapsed ? 'hidden md:block' : 'block')}>
         <Suspense fallback={<div className="h-48 animate-pulse bg-[rgba(255,255,255,0.03)] rounded" />}>
           {children}
         </Suspense>
-      )}
+      </div>
     </GlassCard>
   );
 }

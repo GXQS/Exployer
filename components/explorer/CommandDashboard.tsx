@@ -11,8 +11,23 @@ import type { ChainStats } from '@/lib/rpc';
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
+/** Derive network status label + Tailwind color class from live stats */
+function useNetworkStatus(stats: ChainStats | undefined, error: unknown) {
+  if (error) return { label: 'OFFLINE',      cls: 'text-danger'  };
+  if (!stats)  return { label: 'LOADING…',   cls: 'text-gray-500' };
+  if (stats.avgBlockTime > 2.5 || stats.mempoolSize > 500)
+               return { label: 'DEGRADED',   cls: 'text-warning'  };
+               return { label: 'OPERATIONAL', cls: 'text-success'  };
+}
+
 /** Memoized price ticker to avoid unnecessary re-renders */
-const PriceTicker = memo(function PriceTicker({ stats }: { stats?: ChainStats }) {
+const PriceTicker = memo(function PriceTicker({
+  stats,
+  networkStatus,
+}: {
+  stats?: ChainStats;
+  networkStatus: { label: string; cls: string };
+}) {
   return (
     <GlassCard depth={2} glow="primary" className="px-4 py-3">
       {/* Blockchain identity bar */}
@@ -53,7 +68,7 @@ const PriceTicker = memo(function PriceTicker({ stats }: { stats?: ChainStats })
           <div className="flex flex-col items-end">
             <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">MEMPOOL</span>
             <span className={`font-mono font-bold text-sm ${
-              (stats?.mempoolSize ?? 0) > 200 ? 'text-[#ffaa00]' : 'text-[#00ff88]'
+              (stats?.mempoolSize ?? 0) > 200 ? 'text-warning' : 'text-success'
             }`}>
               {stats?.mempoolSize ?? '—'} txs
             </span>
@@ -72,7 +87,7 @@ const PriceTicker = memo(function PriceTicker({ stats }: { stats?: ChainStats })
           {/* Network operational status */}
           <div className="flex flex-col items-end">
             <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">STATUS</span>
-            <span className="text-[#00ff88] font-mono text-sm font-bold">OPERATIONAL</span>
+            <span className={`font-mono text-sm font-bold ${networkStatus.cls}`}>{networkStatus.label}</span>
           </div>
         </div>
       </div>
@@ -81,7 +96,8 @@ const PriceTicker = memo(function PriceTicker({ stats }: { stats?: ChainStats })
 });
 
 export default function CommandDashboard() {
-  const { data: stats } = useSWR<ChainStats>('/api/stats', fetcher, { refreshInterval: 2000 });
+  const { data: stats, error } = useSWR<ChainStats>('/api/stats', fetcher, { refreshInterval: 2000 });
+  const networkStatus = useNetworkStatus(stats, error);
 
   const health = stats
     ? Math.min(100, Math.max(0, 100 - (stats.avgBlockTime > 2.5 ? 20 : 0) - (stats.mempoolSize > 200 ? 15 : 0)))
@@ -171,7 +187,7 @@ export default function CommandDashboard() {
       </div>
 
       {/* Blockchain identity ticker */}
-      <PriceTicker stats={stats} />
+      <PriceTicker stats={stats} networkStatus={networkStatus} />
     </div>
   );
 }

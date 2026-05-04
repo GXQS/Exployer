@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
@@ -15,10 +16,21 @@ const navItems = [
   { href: '/economic-intelligence', label: 'ECON', icon: '◇' },
 ];
 
-// Show only most-used items in mobile bottom nav (5 max for ergonomics)
-const mobileNavItems = navItems.slice(0, 5);
+// Primary items shown directly in bottom bar; overflow shown in expandable tray
+const primaryMobileItems = navItems.slice(0, 4);
+const overflowMobileItems = navItems.slice(4);
 
-function NavItem({ item, pathname, mobile = false }: { item: typeof navItems[0]; pathname: string; mobile?: boolean }) {
+function NavItem({
+  item,
+  pathname,
+  mobile = false,
+  onNavigate,
+}: {
+  item: typeof navItems[0];
+  pathname: string;
+  mobile?: boolean;
+  onNavigate?: () => void;
+}) {
   const active = pathname === item.href ||
     (item.href !== '/' && item.href.length > 1 && pathname.startsWith(item.href + '/'));
 
@@ -28,6 +40,7 @@ function NavItem({ item, pathname, mobile = false }: { item: typeof navItems[0];
         href={item.href}
         aria-label={item.label}
         title={item.label}
+        onClick={onNavigate}
         className={cn(
           'flex-1 flex flex-col items-center justify-center gap-0.5 py-2 relative',
           'transition-all duration-200',
@@ -67,6 +80,12 @@ function NavItem({ item, pathname, mobile = false }: { item: typeof navItems[0];
 
 export default function Navigation() {
   const pathname = usePathname();
+  const [showMore, setShowMore] = useState(false);
+
+  // Show More button as active when current path is in the overflow set
+  const moreActive = overflowMobileItems.some(
+    item => pathname === item.href || (item.href.length > 1 && pathname.startsWith(item.href + '/'))
+  );
 
   return (
     <>
@@ -95,10 +114,43 @@ export default function Navigation() {
 
       {/* Mobile bottom nav */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[rgba(5,1,10,0.97)] border-t border-[rgba(0,255,225,0.15)] backdrop-blur-md">
+        {/* Overflow tray — shown when "More" is tapped */}
+        {showMore && (
+          <div className="border-b border-[rgba(0,255,225,0.1)] px-2 pt-2 pb-1 grid grid-cols-5 gap-1">
+            {overflowMobileItems.map(item => (
+              <NavItem
+                key={item.href}
+                item={item}
+                pathname={pathname}
+                mobile
+                onNavigate={() => setShowMore(false)}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Primary nav row */}
         <div className="flex items-stretch relative">
-          {mobileNavItems.map(item => (
+          {primaryMobileItems.map(item => (
             <NavItem key={item.href} item={item} pathname={pathname} mobile />
           ))}
+
+          {/* More button */}
+          <button
+            onClick={() => setShowMore(m => !m)}
+            aria-label="More navigation items"
+            aria-expanded={showMore}
+            className={cn(
+              'flex-1 flex flex-col items-center justify-center gap-0.5 py-2 relative transition-all duration-200',
+              (showMore || moreActive) ? 'text-[#00ffe1]' : 'text-gray-600 hover:text-gray-300'
+            )}
+          >
+            <span className="text-base leading-none">⋯</span>
+            <span className="text-[10px] font-mono leading-none sr-only sm:not-sr-only">MORE</span>
+            {(showMore || moreActive) && (
+              <div className="absolute bottom-0 w-8 h-0.5 bg-[#00ffe1] rounded-t shadow-[0_0_8px_#00ffe1]" />
+            )}
+          </button>
         </div>
       </nav>
     </>

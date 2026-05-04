@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { lazy, Suspense } from 'react';
+import useSWR from 'swr';
 import CommandDashboard from '@/components/explorer/CommandDashboard';
 import BlockStream from '@/components/explorer/BlockStream';
 import TransactionList from '@/components/explorer/TransactionList';
@@ -10,7 +11,13 @@ import LiveIndicator from '@/components/ui/LiveIndicator';
 // Lazy-load chart to avoid blocking initial render
 const TpsChart = lazy(() => import('@/components/charts/TpsChart'));
 
+const fetcher = (url: string) => fetch(url).then(r => r.json());
+
 export default function HomePage() {
+  // Track whether the blocks/transactions feed is actually live
+  const { data: txData, error: txError } = useSWR('/api/blocks?count=5', fetcher, { refreshInterval: 3000 });
+  const txLive = !txError && !!txData;
+
   return (
     <div className="p-4 md:p-6 space-y-6">
       <CommandDashboard />
@@ -43,7 +50,7 @@ export default function HomePage() {
       {/* Recent Transactions */}
       <ChartCard
         title="Recent Transactions"
-        headerRight={<LiveIndicator live label="LIVE" />}
+        headerRight={<LiveIndicator live={txLive} label="LIVE" />}
       >
         <TransactionList limit={8} />
       </ChartCard>
