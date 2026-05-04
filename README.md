@@ -1,244 +1,213 @@
-🚀 GXQS Explorer — Enterprise Intelligence Platform
+<div align="center">
 
-🧠 Real-time blockchain intelligence system for the quantum era
-⚡ Explorer + AI + Multi-chain + Economic Intelligence + Autonomous Agents (bounded)
+# GXQS Explorer
 
-⸻
+**Enterprise-grade blockchain intelligence platform for the GXQS network.**
 
-🌌 Overview
+[![Next.js](https://img.shields.io/badge/Next.js-15.5-black?logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue?logo=typescript)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8?logo=tailwindcss)](https://tailwindcss.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-GXQS Explorer is not a traditional block explorer.
+</div>
 
-It is a full-stack intelligence platform that:
-	•	📡 Monitors blockchain activity in real time
-	•	🧠 Detects anomalies and predicts system behavior
-	•	🌐 Correlates multi-chain signals
-	•	🤖 Coordinates bounded AI agents
-	•	📊 Models liquidity, risk, and economic regimes
+---
 
-⸻
+## Overview
 
-🏗️ System Architecture
+GXQS Explorer is a real-time blockchain explorer and command center built with Next.js 15 App Router, TypeScript, and Tailwind CSS. It provides live chain metrics, validator intelligence, mempool monitoring, AI-driven anomaly detection, and smart-contract deployment tooling in a single responsive interface.
 
-Explorer Core → Real-time Engine → AI Layer → Agent System → Swarm → Multi-chain → Economic Intelligence
+---
 
-Layers:
-	•	🔎 Explorer Layer
-	•	Blocks, transactions, mempool, validators
-	•	⚡ Real-time Engine
-	•	WebSocket + polling fallback
-	•	🧠 AI Layer
-	•	anomaly detection
-	•	predictive analytics
-	•	🤖 Agent Layer (Ω)
-	•	bounded autonomous agents
-	•	🌐 Swarm Layer (∞)
-	•	multi-agent coordination
-	•	🔗 Multi-chain Layer
-	•	GXQS + EVM adapters
-	•	📊 Economic Layer (Singular)
-	•	liquidity, regime, simulation
+## Screenshots
 
-⸻
+### Command Dashboard
 
-🎨 UI System
+The home screen surfaces a live KPI grid, TPS chart, block stream, and recent transactions — all driven by the GXQS chain API.
 
-Cyberpunk Enterprise HUD
+![Command Dashboard](public/screenshots/dashboard.png)
 
-	•	🌈 Neon color system (cyan / purple / pink)
-	•	🧊 Glassmorphism panels
-	•	✨ Controlled glow effects
-	•	📡 Live indicators + animations
-	•	📱 Mobile-first responsive design
+### Block Explorer
 
-⸻
+Drill into every block with timestamp, transaction count, gas metrics, and validator signature.
 
-⚡ Core Features
+![Block Explorer](public/screenshots/blocks.png)
 
-🔎 Explorer
-	•	📦 Live block streaming
-	•	🔗 Transaction decoding
-	•	📊 Validator monitoring
-	•	⚡ Mempool visualization
+### Mempool Monitor
 
-⸻
+Real-time mempool view with fee distribution, transaction type breakdown, and alert badges when the backlog exceeds thresholds.
 
-🧠 AI Intelligence
-	•	🚨 Anomaly detection (TPS, mempool, validators)
-	•	📈 Predictive analytics (short-term forecasting)
-	•	📊 Chain health scoring
+![Mempool Monitor](public/screenshots/mempool.png)
 
-⸻
+### Validator Intelligence
 
-🤖 Autonomous Agents (Ω)
-	•	anomaly agent
-	•	validator agent
-	•	mempool agent
-	•	defense agent
+Leaderboard of active validators showing uptime, stake weight, blocks produced, and performance score.
 
-⚠️ Agents are bounded — no fund movement, no chain modification
+![Validator Intelligence](public/screenshots/validators.png)
 
-⸻
+### AI Dashboard
 
-🌐 Multi-chain Intelligence (∞)
-	•	cross-chain anomaly detection
-	•	bridge risk monitoring
-	•	liquidity flow tracking
+On-chain anomaly detection and predictive analytics powered by the built-in AI layer.
 
-⸻
+![AI Dashboard](public/screenshots/ai-dashboard.png)
 
-📊 Economic Intelligence (Singular)
-	•	📡 signal engine (TPS velocity, congestion index)
-	•	💧 liquidity modeling
-	•	📉 regime detection
-	•	🔮 simulation engine (what-if scenarios)
+### AI Control
 
-⸻
+Interactive AI model controls — configure thresholds, retrain triggers, and view model confidence scores.
 
-🧱 Tech Stack
+![AI Control](public/screenshots/ai-control.png)
 
-Frontend
-	•	⚛️ Next.js 15.5.15
-	•	🎨 TailwindCSS
-	•	🧩 React (App Router)
+### Global Intelligence
 
-Backend
-	•	🧠 Next.js API Routes (Node.js)
-	•	⚡ Real-time polling + WS
+Cross-chain and geo-distributed node health map with latency metrics per region.
 
-AI / Data
-	•	📊 statistical models (no heavy ML deps)
-	•	🧠 anomaly + prediction engines
+![Global Intelligence](public/screenshots/global-intelligence.png)
 
-Web3
-	•	🔗 WalletConnect v2
-	•	🪙 EVM-compatible support
-	•	🔐 RPC abstraction layer
+### Economic Intelligence
 
-⸻
+Tokenomics dashboard: price feed, market cap, staking ratio, circulating supply, and emission schedule.
 
-🔐 Security
-	•	✅ Patched critical CVEs (Next.js 15 upgrade)
-	•	🔒 No private key handling
-	•	🚫 No autonomous financial execution
-	•	🛡️ Guardrails + rate limiting
-	•	📜 Full audit logging
+![Economic Intelligence](public/screenshots/economic-intelligence.png)
 
-⸻
+### Smart Contract Deploy
 
-⚙️ Setup
+Guided deploy wizard with ABI upload, constructor argument builder, gas estimator, and live deployment status.
 
-git clone https://github.com/GXQS/Exployer.git
-cd Exployer
+![Deploy](public/screenshots/deploy.png)
+
+### Mobile — Responsive Layout
+
+Bottom navigation bar on small screens with a collapsible **More** tray giving access to all nine routes.
+
+<table>
+  <tr>
+    <td><img src="public/screenshots/mobile-dashboard.png" alt="Mobile dashboard" width="280"/></td>
+    <td><img src="public/screenshots/mobile-nav-more.png" alt="Mobile nav more tray" width="280"/></td>
+  </tr>
+  <tr>
+    <td align="center">Dashboard (390 px)</td>
+    <td align="center">More nav tray expanded</td>
+  </tr>
+</table>
+
+---
+
+## Design System
+
+### Color Tokens
+
+| Token       | Hex       | Usage                                  |
+|-------------|-----------|----------------------------------------|
+| `primary`   | `#00ffe1` | KPI values, active states, links       |
+| `secondary` | `#7a00ff` | Secondary KPI, chart series            |
+| `accent`    | `#ff00d4` | Decorative highlights                  |
+| `success`   | `#00ff88` | Healthy states, confirmations          |
+| `warning`   | `#ffaa00` | Degraded states, mempool overload      |
+| `danger`    | `#ff3b3b` | Critical alerts, failed transactions   |
+
+### Glassmorphism Depth Levels
+
+| Class      | Background                    | Blur   | Border                          |
+|------------|-------------------------------|--------|---------------------------------|
+| `glass-l1` | `rgba(255,255,255,0.04)`      | 12 px  | `rgba(0,255,225,0.15)`          |
+| `glass-l2` | `rgba(255,255,255,0.06)`      | 16 px  | `rgba(0,255,225,0.20)`          |
+| `glass-l3` | `rgba(255,255,255,0.08)`      | 20 px  | `rgba(0,255,225,0.30)`          |
+
+### Glow System
+
+State-driven glow — no always-on glow.
+
+```css
+/* Hover: soft */
+.glow-hover-primary:hover { box-shadow: 0 0 12px rgba(0,255,225,0.25); }
+/* Active: strong */
+.glow-active-primary      { box-shadow: 0 0 20px rgba(0,255,225,0.5), 0 0 40px rgba(0,255,225,0.2); }
+/* Critical: pulsing animation */
+.animate-glow-pulse-warning { animation: glowPulseWarning 1.5s ease-in-out infinite; }
+.animate-glow-pulse-danger  { animation: glowPulseDanger  1s   ease-in-out infinite; }
+```
+
+---
+
+## Architecture
+
+```
+app/                    Next.js App Router pages
+├── page.tsx            Home — Command Dashboard
+├── blocks/             Block explorer
+├── mempool/            Mempool monitor
+├── validators/         Validator leaderboard
+├── deploy/             Contract deploy wizard
+├── ai-dashboard/       AI anomaly dashboard
+├── ai-control/         AI model controls
+├── global-intelligence/ Cross-chain node map
+├── economic-intelligence/ Tokenomics
+└── api/                Mock RPC API routes
+
+components/
+├── explorer/           Page-level smart components
+│   ├── CommandDashboard.tsx   Live KPI grid + identity bar
+│   ├── Navigation.tsx         Sidebar (≥md) + bottom nav (<md)
+│   ├── BlockStream.tsx
+│   ├── TransactionList.tsx
+│   └── ...
+└── ui/                 Design-system primitives
+    ├── GlassCard.tsx          Glassmorphism card (depth prop)
+    ├── StatCard.tsx           KPI card (primary | secondary)
+    ├── NeonBadge.tsx          Semantic badge (design-token colors)
+    ├── ChartCard.tsx          Collapsible chart wrapper
+    ├── ActivityFeed.tsx       Feed list with accent lines
+    ├── LiveIndicator.tsx      Data-driven live dot
+    └── ...
+
+lib/
+├── rpc.ts              Mock blockchain data (GXQS chain simulation)
+└── utils.ts            Formatting helpers
+
+styles/
+└── globals.css         CSS custom properties + utility classes
+```
+
+> **Note:** `lib/rpc.ts` contains a simulated GXQS chain RPC layer. All blockchain data is generated with realistic values. No live RPC endpoint is required to run the explorer.
+
+---
+
+## Quick Start
+
+```bash
+# Install dependencies
 npm install
+
+# Start development server
 npm run dev
+# → http://localhost:3000
 
+# Production build
+npm run build
+npm start
 
-⸻
+# Lint
+npm run lint
+```
 
-🌍 Environment
+**Requirements:** Node.js 18+, npm 9+
 
-Create .env.local:
+---
 
-RPC_URL=http://localhost:8545
-CHAIN_ID=1
+## Key Features
 
+| Feature | Detail |
+|---|---|
+| **Real-time KPIs** | TPS, block height, finality, validator count, mempool size, chain health — auto-refresh every 2 s |
+| **Blockchain Identity Bar** | Live block ticker, mempool counter with warning threshold, MAINNET badge, data-driven network status |
+| **Responsive Navigation** | Full sidebar on desktop; 4-item bottom bar + expandable "More" tray on mobile |
+| **Collapsible Charts** | Toggle hidden on desktop; mobile-only collapse control with `aria-expanded` |
+| **AI Anomaly Detection** | On-chain pattern analysis with configurable sensitivity thresholds |
+| **Smart Contract Deploy** | ABI-driven wizard with gas estimation |
+| **Performance** | Chart components wrapped in `React.memo`; `TpsChart` lazy-loaded; SWR deduplicated polling |
 
-⸻
+---
 
-🧪 Development
+## License
 
-npm run dev      # start dev server
-npm run build    # production build
-npm run start    # run production
-
-
-⸻
-
-📊 Key Pages
-	•	/dashboard → global system overview
-	•	/explorer → blocks + transactions
-	•	/ai-dashboard → anomalies + predictions
-	•	/ai-control → agent control panel
-	•	/global-intelligence → multi-chain view
-	•	/economic-intelligence → economic modeling
-
-⸻
-
-⚠️ Known Constraints
-	•	AI models are lightweight (statistical, not heavy ML)
-	•	Predictions are short-horizon
-	•	Correlation ≠ causation (operator judgment required)
-
-⸻
-
-🧭 Design Principles
-	•	🧠 Intelligence > noise
-	•	⚡ Real-time > cached
-	•	🔐 Safety > autonomy
-	•	👤 Human override always available
-
-⸻
-
-🚨 Guardrails
-
-This system DOES NOT:
-	•	❌ Execute trades
-	•	❌ Move funds
-	•	❌ Modify blockchain state
-
-This system ONLY:
-	•	✅ Monitors
-	•	✅ Analyzes
-	•	✅ Predicts
-	•	✅ Alerts
-
-⸻
-
-🧪 Testing Focus
-	•	real-time data integrity
-	•	anomaly detection accuracy
-	•	UI stability (no hydration errors)
-	•	caching correctness (Next.js 15)
-
-⸻
-
-🚀 Roadmap
-
-✅ Phase Core
-
-Explorer + real-time system
-
-✅ Phase X
-
-AI anomaly + prediction
-
-✅ Phase Ω
-
-Autonomous agents (bounded)
-
-✅ Phase ∞
-
-Multi-chain intelligence
-
-✅ Phase Singular
-
-Economic intelligence layer
-
-⸻
-
-👥 Contributors
-	•	🧠 GXQS Core Team
-	•	⚡ AI + Systems Engineering
-	•	🎨 UI/UX Cyber Design
-
-⸻
-
-📜 License
-
-MIT / Apache-2.0
-----
-
-🌌 Final Vision
-
-A real-time blockchain intelligence platform that understands, predicts, and explains system behavior—without ever taking unsafe autonomous action Power with GXQS GPT GO
+[MIT](LICENSE) © GXQS
