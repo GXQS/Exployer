@@ -29,7 +29,9 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+    // Validate unsafe directives: unsafe-eval omitted — not required by Next.js in production.
+    // unsafe-inline is still needed for Next.js inline script bootstrapping.
+    "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob:",
       "font-src 'self'",

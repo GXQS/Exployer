@@ -37,11 +37,15 @@ export async function POST(request: Request) {
     }
 
     const { id } = body as Record<string, unknown>;
-    if (typeof id !== 'string' || id.trim() === '') {
+    if (typeof id !== 'string') {
+      return NextResponse.json({ error: 'id must be a non-empty string' }, { status: 400 });
+    }
+    const trimmedId = id.trim();
+    if (trimmedId === '') {
       return NextResponse.json({ error: 'id must be a non-empty string' }, { status: 400 });
     }
 
-    const ok = acknowledgeAlert(id.trim());
+    const ok = acknowledgeAlert(trimmedId);
     return NextResponse.json({ success: ok });
   } catch {
     return NextResponse.json({ error: 'Failed to acknowledge alert' }, { status: 500 });
