@@ -5,6 +5,19 @@ interface CacheEntry<T> {
 
 class MemoryCache {
   private store = new Map<string, CacheEntry<unknown>>();
+  private cleanupTimer: ReturnType<typeof setInterval> | null = null;
+
+  constructor(cleanupIntervalMs = 30_000) {
+    // Periodically evict expired entries to prevent unbounded memory growth.
+    // Only in server/Node.js environments where setInterval is available.
+    if (typeof setInterval !== 'undefined') {
+      this.cleanupTimer = setInterval(() => this.cleanup(), cleanupIntervalMs);
+      // Allow the process to exit even if this timer is still active.
+      if (this.cleanupTimer.unref) {
+        this.cleanupTimer.unref();
+      }
+    }
+  }
 
   set<T>(key: string, data: T, ttlMs = 10_000): void {
     this.store.set(key, {
@@ -42,6 +55,14 @@ class MemoryCache {
         this.store.delete(key);
       }
     }
+  }
+
+  destroy(): void {
+    if (this.cleanupTimer !== null) {
+      clearInterval(this.cleanupTimer);
+      this.cleanupTimer = null;
+    }
+    this.store.clear();
   }
 }
 
