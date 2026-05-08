@@ -7,8 +7,10 @@ const MAX_BYTECODE_HEX_LEN = 524_288;
 const MAX_ABI_ENTRIES = 500;
 // Max raw body size in bytes (512 KB)
 const MAX_BODY_BYTES = 524_288;
-// Hex-only pattern (optional 0x prefix, at least 2 hex chars, even length enforced separately)
-const HEX_RE = /^(?:0x)?([0-9a-fA-F]{2})+$/;
+// Pure hex pattern (no prefix) — applied to rawHex after prefix stripping
+const RAW_HEX_RE = /^[0-9a-fA-F]+$/;
+// Reusable encoder for byte-length calculation
+const textEncoder = new TextEncoder();
 
 export async function POST(request: Request) {
   try {
@@ -17,7 +19,7 @@ export async function POST(request: Request) {
     let rawBody: string;
     try {
       const text = await request.text();
-      if (new TextEncoder().encode(text).length > MAX_BODY_BYTES) {
+      if (textEncoder.encode(text).length > MAX_BODY_BYTES) {
         return NextResponse.json({ error: 'Request body too large' }, { status: 413 });
       }
       rawBody = text;
@@ -47,7 +49,7 @@ export async function POST(request: Request) {
     if (typeof bytecode !== 'string') {
       return NextResponse.json({ error: 'bytecode must be a string' }, { status: 400 });
     }
-    // Strip optional 0x prefix before length check
+    // Strip optional 0x prefix; all subsequent checks operate on rawHex
     const rawHex = bytecode.startsWith('0x') || bytecode.startsWith('0X')
       ? bytecode.slice(2)
       : bytecode;
@@ -60,7 +62,7 @@ export async function POST(request: Request) {
     if (rawHex.length % 2 !== 0) {
       return NextResponse.json({ error: 'bytecode must have even hex length' }, { status: 400 });
     }
-    if (!HEX_RE.test(bytecode)) {
+    if (!RAW_HEX_RE.test(rawHex)) {
       return NextResponse.json({ error: 'bytecode must be a valid hex string' }, { status: 400 });
     }
 
