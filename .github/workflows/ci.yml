@@ -35,10 +35,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Type-check
-        run: npx tsc --noEmit
-
-      - name: Build
+      - name: Build (includes type-check)
+        # `next build` runs TypeScript type-checking internally and generates
+        # next-env.d.ts, so a separate `tsc --noEmit` step is not needed.
         run: npm run build
         env:
           NODE_ENV: production
