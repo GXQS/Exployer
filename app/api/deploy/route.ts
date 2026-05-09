@@ -14,8 +14,14 @@ const textEncoder = new TextEncoder();
 
 export async function POST(request: Request) {
   try {
-    // Read the body as text first so we can enforce a hard size limit regardless
-    // of whether the client sends a Content-Length header.
+    // Fast-reject when the client advertises a body that is already too large.
+    const contentLength = request.headers.get('content-length');
+    if (contentLength !== null && parseInt(contentLength, 10) > MAX_BODY_BYTES) {
+      return NextResponse.json({ error: 'Request body too large' }, { status: 413 });
+    }
+
+    // Read the body as text so we can enforce the size limit as a hard backstop
+    // regardless of whether the client sends a correct Content-Length header.
     let rawBody: string;
     try {
       const text = await request.text();

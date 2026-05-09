@@ -26,8 +26,13 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   override componentDidCatch(error: unknown, info: { componentStack: string }) {
-    // Surface error details to the console for observability
-    console.error('[ErrorBoundary]', error, info.componentStack);
+    // Log full details in development; use a sanitized message in production
+    // to avoid leaking implementation internals via the browser console.
+    if (IS_DEV) {
+      console.error('[ErrorBoundary]', error, info.componentStack);
+    } else {
+      console.error('[ErrorBoundary] A render error occurred.');
+    }
   }
 
   override render() {
