@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import '../styles/globals.css';
 import '../styles/cyber.css';
 import Navigation from '@/components/explorer/Navigation';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
 export const metadata: Metadata = {
   title: 'GXQS Live Block Explorer',
@@ -15,7 +16,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navigation />
         {/* Desktop: offset for sidebar. Mobile: pad bottom for bottom nav. */}
         <main className="md:ml-16 min-h-screen pb-16 md:pb-0">
-          {children}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
         </main>
       </body>
     </html>
