@@ -12,7 +12,7 @@ export class ValidatorAgent extends BaseAgent {
       const validators = await getValidators();
       const inactive = validators.filter(v => v.status === 'inactive');
       const jailed = validators.filter(v => v.status === 'jailed');
-      const lowUptime = validators.filter(v => v.uptime < 95);
+      const lowUptime = validators.filter(v => v.uptime != null && v.uptime < 95);
 
       if (jailed.length > 0) {
         createAlert(
@@ -20,7 +20,7 @@ export class ValidatorAgent extends BaseAgent {
           'HIGH',
           `${jailed.length} validator(s) jailed`,
           this.name,
-          { validators: jailed.map(v => v.name) }
+          { validators: jailed.map(v => v.name ?? v.address) },
         );
         this.logDecision('ALERT', `${jailed.length} validators jailed`, 0.9);
       }
@@ -30,7 +30,7 @@ export class ValidatorAgent extends BaseAgent {
           'VALIDATOR_OFFLINE',
           'MEDIUM',
           `${inactive.length} validators offline`,
-          this.name
+          this.name,
         );
         this.logDecision('ALERT', `${inactive.length} validators offline`, 0.85);
       }
@@ -40,8 +40,8 @@ export class ValidatorAgent extends BaseAgent {
       } else {
         this.logDecision('MONITOR', 'Validator set healthy', 0.98);
       }
-    } catch (e) {
-      this.logDecision('ERROR', `Validator check failed: ${(e as Error).message}`, 0, false);
+    } catch (error) {
+      this.logDecision('ERROR', `Validator check failed: ${(error as Error).message}`, 0, false);
     }
   }
 }

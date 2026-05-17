@@ -5,11 +5,10 @@ import NeonText from '@/components/ui/NeonText';
 import NeonButton from '@/components/ui/NeonButton';
 import GlowBadge from '@/components/ui/GlowBadge';
 import LiveIndicator from '@/components/ui/LiveIndicator';
-import { formatNumber } from '@/lib/utils';
 import { detectRegime, type RegimeData } from '@/economics/regime';
 import { computeSignals, type EconomicSignals } from '@/economics/signals';
 import { SCENARIOS, runSimulation, type SimulationResult } from '@/economics/simulation';
-import type { ChainStats } from '@/lib/rpc';
+import type { ChainStats } from '@/lib/explorer-types';
 
 const riskColors = { LOW: 'green' as const, MEDIUM: 'orange' as const, HIGH: 'orange' as const, CRITICAL: 'red' as const };
 
@@ -23,24 +22,26 @@ export default function EconomicIntelligencePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const s = await fetch('/api/stats').then(r => r.json());
-        setStats(s);
+        const nextStats = await fetch('/api/stats').then(r => r.json() as Promise<ChainStats>);
+        setStats(nextStats);
         setRegime(detectRegime({
-          tps: s.tps,
-          avgBlockTime: s.avgBlockTime,
-          mempoolSize: s.mempoolSize,
-          activeValidators: s.activeValidators,
-          totalValidators: 20,
+          tps: nextStats.tps ?? 0,
+          avgBlockTime: nextStats.avgBlockTime ?? 0,
+          mempoolSize: nextStats.mempoolSize ?? 0,
+          activeValidators: nextStats.activeValidators,
+          totalValidators: Math.max(nextStats.activeValidators, 20),
         }));
         setSignals(computeSignals({
-          tps: s.tps,
+          tps: nextStats.tps ?? 0,
           gasUsed: 12_000_000,
           gasLimit: 15_000_000,
-          mempoolSize: s.mempoolSize,
+          mempoolSize: nextStats.mempoolSize ?? 0,
           avgGasPrice: 25,
           maxGasPrice: 100,
         }));
-      } catch {}
+      } catch {
+        // keep last successful state
+      }
     };
     fetchData();
     const timer = setInterval(fetchData, 3000);
@@ -50,9 +51,9 @@ export default function EconomicIntelligencePage() {
   const runScenario = () => {
     if (!stats) return;
     const result = runSimulation(SCENARIOS[selectedScenario], {
-      tps: stats.tps,
-      mempoolSize: stats.mempoolSize,
-      avgBlockTime: stats.avgBlockTime,
+      tps: stats.tps ?? 0,
+      mempoolSize: stats.mempoolSize ?? 0,
+      avgBlockTime: stats.avgBlockTime ?? 0,
       healthScore: 94,
     });
     setSimulation(result);
@@ -69,7 +70,6 @@ export default function EconomicIntelligencePage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Regime Indicator */}
         <GlassCard className="p-6">
           <NeonText color="pink" size="sm" className="font-bold uppercase tracking-wider mb-4 block">
             Market Regime
@@ -88,8 +88,8 @@ export default function EconomicIntelligencePage() {
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
-                {regime.indicators.map(ind => (
-                  <GlowBadge key={ind} label={ind} color="purple" size="sm" />
+                {regime.indicators.map(indicator => (
+                  <GlowBadge key={indicator} label={indicator} color="purple" size="sm" />
                 ))}
               </div>
             </div>
@@ -98,7 +98,6 @@ export default function EconomicIntelligencePage() {
           )}
         </GlassCard>
 
-        {/* Economic Signals */}
         <GlassCard className="p-6">
           <NeonText color="cyan" size="sm" className="font-bold uppercase tracking-wider mb-4 block">
             Economic Signals
@@ -111,18 +110,18 @@ export default function EconomicIntelligencePage() {
                 { label: 'Congestion Index', value: signals.congestionIndex.toFixed(1), unit: '%', bar: signals.congestionIndex },
                 { label: 'Gas Utilization', value: (signals.utilizationRate * 100).toFixed(1), unit: '%', bar: signals.utilizationRate * 100 },
                 { label: 'Mempool Pressure', value: signals.mempoolPressure.toFixed(1), unit: '%', bar: signals.mempoolPressure },
-              ].map(sig => (
-                <div key={sig.label}>
+              ].map(signal => (
+                <div key={signal.label}>
                   <div className="flex justify-between text-xs font-mono mb-1">
-                    <span className="text-gray-500">{sig.label}</span>
-                    <span className="text-[#00ffe1]">{sig.value} {sig.unit}</span>
+                    <span className="text-gray-500">{signal.label}</span>
+                    <span className="text-[#00ffe1]">{signal.value} {signal.unit}</span>
                   </div>
                   <div className="h-1.5 bg-[rgba(255,255,255,0.05)] rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{
-                        width: `${sig.bar}%`,
-                        backgroundColor: sig.bar > 80 ? '#ff0044' : sig.bar > 60 ? '#ffaa00' : '#00ffe1'
+                        width: `${signal.bar}%`,
+                        backgroundColor: signal.bar > 80 ? '#ff0044' : signal.bar > 60 ? '#ffaa00' : '#00ffe1',
                       }}
                     />
                   </div>
@@ -135,7 +134,6 @@ export default function EconomicIntelligencePage() {
         </GlassCard>
       </div>
 
-      {/* Simulation Console */}
       <GlassCard className="p-6">
         <NeonText color="purple" size="sm" className="font-bold uppercase tracking-wider mb-4 block">
           What-If Simulation Console
@@ -145,18 +143,18 @@ export default function EconomicIntelligencePage() {
             <div>
               <label className="text-xs font-mono text-gray-500 uppercase block mb-2">Select Scenario</label>
               <div className="space-y-2">
-                {SCENARIOS.map((s, i) => (
+                {SCENARIOS.map((scenario, index) => (
                   <button
-                    key={s.name}
-                    onClick={() => setSelectedScenario(i)}
+                    key={scenario.name}
+                    onClick={() => setSelectedScenario(index)}
                     className={`w-full text-left px-4 py-3 rounded-lg border font-mono text-sm transition-all ${
-                      selectedScenario === i
+                      selectedScenario === index
                         ? 'border-[rgba(0,255,225,0.4)] bg-[rgba(0,255,225,0.05)] text-[#00ffe1]'
                         : 'border-[rgba(255,255,255,0.05)] text-gray-400 hover:border-[rgba(255,255,255,0.1)]'
                     }`}
                   >
-                    <div className="font-medium">{s.name}</div>
-                    <div className="text-xs text-gray-600 mt-0.5">{s.description}</div>
+                    <div className="font-medium">{scenario.name}</div>
+                    <div className="text-xs text-gray-600 mt-0.5">{scenario.description}</div>
                   </button>
                 ))}
               </div>

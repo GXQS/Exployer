@@ -7,24 +7,25 @@ import GlassCard from '@/components/ui/GlassCard';
 import NeonText from '@/components/ui/NeonText';
 import NeonBadge from '@/components/ui/NeonBadge';
 import { formatNumber } from '@/lib/utils';
-import type { ChainStats } from '@/lib/rpc';
+import type { ChainStats } from '@/lib/explorer-types';
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
-/** Thresholds for network status classification */
-const DEGRADED_BLOCK_TIME_THRESHOLD = 2.5; // seconds
-const DEGRADED_MEMPOOL_THRESHOLD    = 500;  // transactions
+const DEGRADED_BLOCK_TIME_THRESHOLD = 2.5;
+const DEGRADED_MEMPOOL_THRESHOLD = 500;
 
-/** Derive network status label + Tailwind color class from live stats */
 function useNetworkStatus(stats: ChainStats | undefined, error: unknown) {
-  if (error) return { label: 'OFFLINE',      cls: 'text-danger'  };
-  if (!stats)  return { label: 'LOADING…',   cls: 'text-gray-500' };
-  if (stats.avgBlockTime > DEGRADED_BLOCK_TIME_THRESHOLD || stats.mempoolSize > DEGRADED_MEMPOOL_THRESHOLD)
-               return { label: 'DEGRADED',   cls: 'text-warning'  };
-               return { label: 'OPERATIONAL', cls: 'text-success'  };
+  if (error) return { label: 'OFFLINE', cls: 'text-danger' };
+  if (!stats) return { label: 'LOADING…', cls: 'text-gray-500' };
+  if (
+    (stats.avgBlockTime !== null && stats.avgBlockTime > DEGRADED_BLOCK_TIME_THRESHOLD) ||
+    (stats.mempoolSize !== null && stats.mempoolSize > DEGRADED_MEMPOOL_THRESHOLD)
+  ) {
+    return { label: 'DEGRADED', cls: 'text-warning' };
+  }
+  return { label: 'OPERATIONAL', cls: 'text-success' };
 }
 
-/** Memoized price ticker to avoid unnecessary re-renders */
 const PriceTicker = memo(function PriceTicker({
   stats,
   networkStatus,
@@ -34,33 +35,29 @@ const PriceTicker = memo(function PriceTicker({
 }) {
   return (
     <GlassCard depth={2} glow="primary" className="px-4 py-3">
-      {/* Blockchain identity bar */}
       <div className="flex flex-wrap items-center justify-between gap-4">
-        {/* Left: token prices */}
         <div className="flex flex-wrap items-center gap-6">
           <div>
             <span className="text-gray-500 font-mono text-[10px] uppercase tracking-wider">GXQS/USD</span>
             <div className="text-[#00ffe1] font-mono font-bold text-lg leading-tight">
-              ${stats?.price?.toFixed(4) ?? '0.0000'}
+              {stats?.price != null ? `$${stats.price.toFixed(4)}` : 'N/A'}
             </div>
           </div>
           <div>
             <span className="text-gray-500 font-mono text-[10px] uppercase tracking-wider">MARKET CAP</span>
             <div className="text-[#7a00ff] font-mono font-bold">
-              ${stats ? formatNumber(stats.marketCap) : '0'}
+              {stats?.marketCap != null ? `$${formatNumber(stats.marketCap)}` : 'N/A'}
             </div>
           </div>
           <div>
             <span className="text-gray-500 font-mono text-[10px] uppercase tracking-wider">TOTAL STAKE</span>
             <div className="text-[#00ffe1] font-mono font-bold">
-              {stats ? formatNumber(stats.totalStake) : '0'} GXQS
+              {stats ? `${formatNumber(stats.totalStake)} GXQS` : '0 GXQS'}
             </div>
           </div>
         </div>
 
-        {/* Right: blockchain identity */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Live block ticker */}
           <div className="flex flex-col items-end">
             <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">BLOCK</span>
             <span className="text-[#00ffe1] font-mono font-bold text-sm">
@@ -68,27 +65,20 @@ const PriceTicker = memo(function PriceTicker({
             </span>
           </div>
 
-          {/* Mempool counter */}
           <div className="flex flex-col items-end">
             <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">MEMPOOL</span>
             <span className={`font-mono font-bold text-sm ${
               (stats?.mempoolSize ?? 0) > 200 ? 'text-warning' : 'text-success'
             }`}>
-              {stats?.mempoolSize ?? '—'} txs
+              {stats?.mempoolSize != null ? `${stats.mempoolSize} txs` : 'N/A'}
             </span>
           </div>
 
-          {/* Chain status */}
           <div className="flex flex-col items-end">
             <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">CHAIN</span>
-            <NeonBadge
-              label="MAINNET"
-              color="success"
-              size="sm"
-            />
+            <NeonBadge label="MAINNET" color="success" size="sm" />
           </div>
 
-          {/* Network operational status */}
           <div className="flex flex-col items-end">
             <span className="text-[10px] font-mono text-gray-600 uppercase tracking-wider">STATUS</span>
             <span className={`font-mono text-sm font-bold ${networkStatus.cls}`}>{networkStatus.label}</span>
@@ -104,15 +94,21 @@ export default function CommandDashboard() {
   const networkStatus = useNetworkStatus(stats, error);
 
   const health = stats
-    ? Math.min(100, Math.max(0, 100 - (stats.avgBlockTime > 2.5 ? 20 : 0) - (stats.mempoolSize > 200 ? 15 : 0)))
+    ? Math.min(
+        100,
+        Math.max(
+          0,
+          100 -
+            ((stats.avgBlockTime ?? 0) > 2.5 ? 20 : 0) -
+            ((stats.mempoolSize ?? 0) > 200 ? 15 : 0),
+        ),
+      )
     : 0;
 
-  // Health uses warning/danger for alerts, primary/secondary for normal KPI
   const healthColor: 'primary' | 'secondary' = health >= 70 ? 'primary' : 'secondary';
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <NeonText size="2xl" color="cyan" className="font-bold block">GXQS COMMAND CENTER</NeonText>
@@ -121,7 +117,6 @@ export default function CommandDashboard() {
         <LiveIndicator live={!!stats} label="MAINNET LIVE" />
       </div>
 
-      {/* KPI Stats grid — primary/secondary only per design rules */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="TPS"
@@ -129,7 +124,7 @@ export default function CommandDashboard() {
           suffix=" tx/s"
           color="primary"
           icon="⚡"
-          subValue="transactions/sec"
+          subValue={stats?.tps == null ? 'not exposed' : 'transactions/sec'}
         />
         <StatCard
           label="BLOCK HEIGHT"
@@ -145,14 +140,14 @@ export default function CommandDashboard() {
           color="primary"
           icon="✓"
           decimals={2}
-          subValue="avg finality time"
+          subValue={stats?.finality == null ? 'not exposed' : 'avg finality time'}
         />
         <StatCard
           label="VALIDATORS"
           value={stats?.activeValidators ?? 0}
           color="secondary"
           icon="⬟"
-          subValue="/ 20 total"
+          subValue="active set"
         />
       </div>
 
@@ -163,6 +158,7 @@ export default function CommandDashboard() {
           suffix=" txs"
           color="primary"
           icon="≋"
+          subValue={stats?.mempoolSize == null ? 'not exposed' : undefined}
         />
         <StatCard
           label="BLOCK TIME"
@@ -171,6 +167,7 @@ export default function CommandDashboard() {
           decimals={2}
           color="secondary"
           icon="⏱"
+          subValue={stats?.avgBlockTime == null ? 'derived unavailable' : undefined}
         />
         <StatCard
           label="TOTAL TXS"
@@ -190,7 +187,6 @@ export default function CommandDashboard() {
         />
       </div>
 
-      {/* Blockchain identity ticker */}
       <PriceTicker stats={stats} networkStatus={networkStatus} />
     </div>
   );

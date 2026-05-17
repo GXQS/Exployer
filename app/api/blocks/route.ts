@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getLatestBlocks } from '@/lib/rpc';
 import { cache } from '@/lib/cache';
 
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -18,11 +19,11 @@ export async function GET(request: Request) {
       });
     }
     const blocks = await getLatestBlocks(count);
-    cache.set(cacheKey, blocks, 2000);
+    cache.set(cacheKey, blocks, 1500);
     return NextResponse.json(blocks, {
       headers: { 'X-Cache': 'MISS', 'X-RateLimit-Limit': '100' },
     });
   } catch (_error) {
-    return NextResponse.json({ error: 'Failed to fetch blocks' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to fetch blocks' }, { status: 503 });
   }
 }

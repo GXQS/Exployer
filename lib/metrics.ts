@@ -1,4 +1,4 @@
-import type { Block, ChainStats } from './rpc';
+import type { Block, ChainStats } from './explorer-types';
 
 interface TpsPoint {
   timestamp: number;
@@ -17,9 +17,9 @@ export function recordTps(tps: number): void {
 
 export function getAverageTps(windowMs = 60_000): number {
   const cutoff = Date.now() - windowMs;
-  const recent = tpsHistory.filter(p => p.timestamp > cutoff);
+  const recent = tpsHistory.filter(point => point.timestamp > cutoff);
   if (recent.length === 0) return 0;
-  return recent.reduce((sum, p) => sum + p.tps, 0) / recent.length;
+  return recent.reduce((sum, point) => sum + point.tps, 0) / recent.length;
 }
 
 export function getTpsHistory(): TpsPoint[] {
@@ -28,21 +28,19 @@ export function getTpsHistory(): TpsPoint[] {
 
 export function computeHealthScore(stats: ChainStats, validatorUptime: number): number {
   let score = 100;
+  const avgBlockTime = stats.avgBlockTime ?? 0;
+  const mempoolSize = stats.mempoolSize ?? 0;
 
-  // Block time penalty (ideal: 2s, max 3s)
-  if (stats.avgBlockTime > 2.5) score -= 10;
-  if (stats.avgBlockTime > 3.0) score -= 20;
+  if (avgBlockTime > 2.5) score -= 10;
+  if (avgBlockTime > 3.0) score -= 20;
 
-  // Mempool congestion penalty
-  if (stats.mempoolSize > 200) score -= 10;
-  if (stats.mempoolSize > 400) score -= 20;
+  if (mempoolSize > 200) score -= 10;
+  if (mempoolSize > 400) score -= 20;
 
-  // Validator participation
   const participation = stats.activeValidators / 20;
   if (participation < 0.9) score -= 15;
   if (participation < 0.75) score -= 25;
 
-  // Validator uptime
   if (validatorUptime < 98) score -= 5;
   if (validatorUptime < 95) score -= 15;
 
@@ -51,10 +49,10 @@ export function computeHealthScore(stats: ChainStats, validatorUptime: number): 
 
 export function computeBlockRate(blocks: Block[]): number {
   if (blocks.length < 2) return 0;
-  const sorted = [...blocks].sort((a, b) => a.timestamp - b.timestamp);
+  const sorted = [...blocks].sort((left, right) => left.timestamp - right.timestamp);
   const timeDiff = sorted[sorted.length - 1].timestamp - sorted[0].timestamp;
   if (timeDiff === 0) return 0;
-  return ((sorted.length - 1) / timeDiff) * 1000; // blocks per second
+  return ((sorted.length - 1) / timeDiff) * 1000;
 }
 
 export function formatHealthScore(score: number): { label: string; color: string } {

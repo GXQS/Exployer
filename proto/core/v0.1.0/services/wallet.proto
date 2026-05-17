@@ -1,0 +1,121 @@
+// GXQS WalletService — API contract for the Wallet application.
+//
+// The Wallet is a consumer of Core's authority.  It may submit transactions
+// to the mempool and query chain state, but it does NOT participate in
+// consensus and does NOT define its own protocol types.
+// "Read-only with respect to consensus" means the Wallet has no block
+// production or validator authority; it can only observe and submit.
+//
+// All types used here are imported from the canonical schemas in the parent
+// directory.  The Wallet MUST NOT redefine these types.
+
+syntax = "proto3";
+
+package gxqs.v1.services;
+
+option go_package = "github.com/gxqs/core/proto/gen/v1/services;gxqsservices";
+
+import "transaction.proto";
+import "block.proto";
+
+// WalletService is the gRPC service consumed by the GXQS Wallet application.
+service WalletService {
+  // SubmitTransaction submits a signed transaction to the node's mempool.
+  // The transaction must be signed with a valid PQC key before submission.
+  rpc SubmitTransaction(SubmitTransactionRequest) returns (SubmitTransactionResponse);
+
+  // GetAccountState retrieves the current state for a given address.
+  rpc GetAccountState(GetAccountStateRequest) returns (GetAccountStateResponse);
+
+  // GetBlock retrieves a finalized block by height or block ID.
+  rpc GetBlock(GetBlockRequest) returns (GetBlockResponse);
+
+  // GetTransaction retrieves a transaction by its ID.
+  rpc GetTransaction(GetTransactionRequest) returns (GetTransactionResponse);
+
+  // StreamEvents subscribes to real-time chain events starting from a given
+  // block height.  The stream is server-sent and continues until the client
+  // disconnects.
+  rpc StreamEvents(StreamEventsRequest) returns (stream ChainEvent);
+}
+
+// SubmitTransactionRequest wraps a signed transaction for mempool submission.
+message SubmitTransactionRequest {
+  gxqs.v1.Transaction transaction = 1;
+}
+
+// SubmitTransactionResponse is returned after a transaction is received.
+// accepted is true if the transaction was accepted into the mempool.
+message SubmitTransactionResponse {
+  // tx_id is the SHA3-256 hash of the transaction (32 bytes).
+  bytes  tx_id    = 1;
+  bool   accepted = 2;
+  // error contains a human-readable rejection reason when accepted is false.
+  string error    = 3;
+}
+
+// GetAccountStateRequest identifies an account by its 32-byte address.
+message GetAccountStateRequest {
+  bytes address = 1;
+}
+
+// GetAccountStateResponse carries the on-chain state of an account.
+message GetAccountStateResponse {
+  uint64 nonce        = 1;
+  uint64 balance      = 2;
+  // code_hash is the SHA3-256 of contract bytecode, or zero for EOAs (32 bytes).
+  bytes  code_hash    = 3;
+  // storage_root is the Merkle root of contract storage (32 bytes).
+  bytes  storage_root = 4;
+}
+
+// GetBlockRequest selects a block by height OR by block ID (hash).
+// Exactly one of height or block_id should be set.
+message GetBlockRequest {
+  uint64 height   = 1;
+  // block_id is a 32-byte SHA3-256 block hash.  When non-empty, height is
+  // ignored and the node performs a hash-based lookup.
+  bytes  block_id = 2;
+}
+
+// GetBlockResponse wraps the requested block.  found is false when the block
+// does not exist at the requested height or hash.
+message GetBlockResponse {
+  gxqs.v1.Block block = 1;
+  bool          found = 2;
+}
+
+// GetTransactionRequest looks up a transaction by its 32-byte ID.
+message GetTransactionRequest {
+  bytes tx_id = 1;
+}
+
+// GetTransactionResponse wraps the requested transaction and its inclusion
+// information.
+message GetTransactionResponse {
+  gxqs.v1.Transaction transaction  = 1;
+  uint64              block_height = 2;
+  bool                found        = 3;
+}
+
+// StreamEventsRequest configures a server-sent event stream.
+message StreamEventsRequest {
+  // from_height is the block height from which to start streaming.
+  // Use 0 to start from the current tip.
+  uint64          from_height  = 1;
+  // event_types filters the stream to the specified event type strings.
+  // An empty list means "all events".
+  repeated string event_types  = 2;
+}
+
+// ChainEvent is a single item in the real-time event stream.
+message ChainEvent {
+  string event_type = 1;
+  uint64 height     = 2;
+  // payload is a serialized event-specific message (scheme-defined).
+  bytes  payload    = 3;
+  // timestamp is the Unix millisecond time at which the event was emitted.
+  int64  timestamp  = 4;
+  // event_hash is the SHA3-256 hash that chains this event to its predecessor.
+  bytes  event_hash = 5;
+}

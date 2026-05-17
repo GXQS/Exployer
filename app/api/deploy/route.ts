@@ -1,27 +1,23 @@
 import { NextResponse } from 'next/server';
-import { deployContract } from '@/lib/rpc';
+import { deployContract, isUnsupportedCoreFeatureError } from '@/lib/rpc';
 
-// Max bytecode length in hex characters (256 KB of bytecode = 524288 hex chars)
 const MAX_BYTECODE_HEX_LEN = 524_288;
-// Max ABI entries
 const MAX_ABI_ENTRIES = 500;
-// Max raw body size in bytes (512 KB)
 const MAX_BODY_BYTES = 524_288;
-// Pure hex pattern (no prefix) — applied to rawHex after prefix stripping
 const RAW_HEX_RE = /^[0-9a-fA-F]+$/;
-// Reusable encoder for byte-length calculation
 const textEncoder = new TextEncoder();
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function POST(request: Request) {
   try {
-    // Fast-reject when the client advertises a body that is already too large.
     const contentLength = request.headers.get('content-length');
     if (contentLength !== null && parseInt(contentLength, 10) > MAX_BODY_BYTES) {
       return NextResponse.json({ error: 'Request body too large' }, { status: 413 });
     }
 
-    // Read the body as text so we can enforce the size limit as a hard backstop
-    // regardless of whether the client sends a correct Content-Length header.
     let rawBody: string;
     try {
       const text = await request.text();
@@ -55,7 +51,6 @@ export async function POST(request: Request) {
     if (typeof bytecode !== 'string') {
       return NextResponse.json({ error: 'bytecode must be a string' }, { status: 400 });
     }
-    // Strip optional 0x prefix; all subsequent checks operate on rawHex
     const rawHex = bytecode.startsWith('0x') || bytecode.startsWith('0X')
       ? bytecode.slice(2)
       : bytecode;
@@ -74,7 +69,10 @@ export async function POST(request: Request) {
 
     const result = await deployContract(abi, bytecode);
     return NextResponse.json(result);
-  } catch {
+  } catch (error) {
+    if (isUnsupportedCoreFeatureError(error)) {
+      return NextResponse.json({ error: error.message }, { status: 501 });
+    }
     return NextResponse.json({ error: 'Deployment failed' }, { status: 500 });
   }
 }

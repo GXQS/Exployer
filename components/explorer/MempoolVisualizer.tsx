@@ -2,7 +2,7 @@
 import useSWR from 'swr';
 import GlassCard from '@/components/ui/GlassCard';
 import { formatHash, formatNumber } from '@/lib/utils';
-import type { MempoolTx } from '@/lib/rpc';
+import type { MempoolTx } from '@/lib/explorer-types';
 import { cn } from '@/lib/utils';
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
@@ -17,7 +17,7 @@ export default function MempoolVisualizer() {
   const { data: mempool, isLoading } = useSWR<MempoolTx[]>(
     '/api/mempool',
     fetcher,
-    { refreshInterval: 3000 }
+    { refreshInterval: 3000 },
   );
 
   const byPriority = {
@@ -29,14 +29,13 @@ export default function MempoolVisualizer() {
 
   return (
     <div className="space-y-4">
-      {/* Summary */}
       <div className="grid grid-cols-3 gap-3">
-        {(['high', 'medium', 'low'] as const).map(p => {
-          const cfg = priorityConfig[p];
-          const count = byPriority[p];
+        {(['high', 'medium', 'low'] as const).map(priority => {
+          const cfg = priorityConfig[priority];
+          const count = byPriority[priority];
           const pct = total > 0 ? (count / total) * 100 : 0;
           return (
-            <GlassCard key={p} className="p-3 text-center">
+            <GlassCard key={priority} className="p-3 text-center">
               <div className="text-xs font-mono text-gray-500 mb-1">{cfg.label} PRIORITY</div>
               <div className="text-xl font-bold font-mono" style={{ color: cfg.color }}>{formatNumber(count)}</div>
               <div className="mt-2 h-1 bg-[rgba(255,255,255,0.05)] rounded-full overflow-hidden">
@@ -47,7 +46,12 @@ export default function MempoolVisualizer() {
         })}
       </div>
 
-      {/* Transaction list */}
+      {!isLoading && total === 0 && (
+        <GlassCard className="p-4 text-xs font-mono text-gray-500 uppercase tracking-wider">
+          Core v0.1.0 does not expose mempool transactions over the explorer gRPC surface.
+        </GlassCard>
+      )}
+
       <div className="space-y-1 max-h-80 overflow-auto">
         {isLoading
           ? Array.from({ length: 8 }).map((_, i) => (
@@ -58,14 +62,14 @@ export default function MempoolVisualizer() {
             return (
               <div key={i} className={cn(
                 'flex items-center gap-3 px-3 py-2 rounded-lg',
-                'bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.03)]'
+                'bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.03)]',
               )}>
                 <span className="text-xs font-mono font-bold px-1.5 py-0.5 rounded" style={{ color: cfg.color, backgroundColor: cfg.bg }}>
                   {cfg.label}
                 </span>
                 <span className="flex-1 text-xs font-mono text-gray-400 truncate">{formatHash(tx.hash)}</span>
-                <span className="text-xs font-mono text-gray-600">{tx.gasPrice} gwei</span>
-                <span className="text-xs font-mono text-gray-500">{tx.size}B</span>
+                <span className="text-xs font-mono text-gray-600">{tx.gasPrice ?? '—'} gwei</span>
+                <span className="text-xs font-mono text-gray-500">{tx.size ?? '—'}B</span>
               </div>
             );
           })}

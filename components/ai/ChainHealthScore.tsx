@@ -2,7 +2,7 @@
 import useSWR from 'swr';
 import GlassCard from '@/components/ui/GlassCard';
 import { computeChainHealth } from '@/ai/scoring';
-import type { ChainStats } from '@/lib/rpc';
+import type { ChainStats } from '@/lib/explorer-types';
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
@@ -11,12 +11,12 @@ export default function ChainHealthScore() {
 
   const health = stats
     ? computeChainHealth({
-        avgBlockTime: stats.avgBlockTime,
+        avgBlockTime: stats.avgBlockTime ?? 0,
         activeValidators: stats.activeValidators,
-        totalValidators: 20,
+        totalValidators: Math.max(stats.activeValidators, 20),
         avgValidatorUptime: 98,
-        mempoolSize: stats.mempoolSize,
-        tps: stats.tps,
+        mempoolSize: stats.mempoolSize ?? 0,
+        tps: stats.tps ?? 0,
         networkLatency: 25,
       })
     : null;
@@ -33,7 +33,9 @@ export default function ChainHealthScore() {
           <svg className="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
             <circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.05)" strokeWidth="8" fill="none" />
             <circle
-              cx="50" cy="50" r="40"
+              cx="50"
+              cy="50"
+              r="40"
               stroke={health.color}
               strokeWidth="8"
               fill="none"
@@ -54,17 +56,17 @@ export default function ChainHealthScore() {
             Trend: {health.trend === 'improving' ? 'UP IMPROVING' : health.trend === 'degrading' ? 'DOWN DEGRADING' : 'STABLE'}
           </div>
           <div className="grid grid-cols-2 gap-2">
-            {Object.entries(health.components).map(([key, val]) => (
+            {Object.entries(health.components).map(([key, value]) => (
               <div key={key}>
                 <div className="text-xs font-mono text-gray-600 uppercase">{key.replace('Health', '')}</div>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 h-1 bg-[rgba(255,255,255,0.05)] rounded-full overflow-hidden">
                     <div
                       className="h-full rounded-full transition-all"
-                      style={{ width: `${val}%`, backgroundColor: health.color }}
+                      style={{ width: `${value}%`, backgroundColor: health.color }}
                     />
                   </div>
-                  <span className="text-xs font-mono text-gray-400">{val}</span>
+                  <span className="text-xs font-mono text-gray-400">{value}</span>
                 </div>
               </div>
             ))}
