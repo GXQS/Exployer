@@ -76,14 +76,11 @@ function createMetadata(): grpc.Metadata {
 function createUnaryOptions(): grpc.CallOptions {
   return {
     deadline: new Date(Date.now() + getCoreConfig().timeoutMs),
-    waitForReady: true,
   };
 }
 
 function createStreamOptions(): grpc.CallOptions {
-  return {
-    waitForReady: true,
-  };
+  return {};
 }
 
 export function getExplorerClient(): ExployerServiceClient {

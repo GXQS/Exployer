@@ -30,14 +30,14 @@ function decodeHex(input: string): Buffer {
 
 async function getChainInfoResponse(): Promise<GetChainInfoResponse__Output> {
   const client = getExplorerClient();
-  return invokeUnary('GetChainInfo', (metadata, options, callback) =>
+  return invokeUnary<GetChainInfoResponse__Output>('GetChainInfo', (metadata, options, callback) =>
     client.getChainInfo({}, metadata, options, callback),
   );
 }
 
 async function getBlockResponse(height: number): Promise<ExployerGetBlockResponse__Output | null> {
   const client = getExplorerClient();
-  const response = await invokeUnary('GetBlock', (metadata, options, callback) =>
+  const response = await invokeUnary<ExployerGetBlockResponse__Output>('GetBlock', (metadata, options, callback) =>
     client.getBlock({ height }, metadata, options, callback),
   );
 
@@ -46,7 +46,7 @@ async function getBlockResponse(height: number): Promise<ExployerGetBlockRespons
 
 async function getTransactionResponse(hash: string): Promise<ExployerGetTransactionResponse__Output | null> {
   const client = getExplorerClient();
-  const response = await invokeUnary('GetTransaction', (metadata, options, callback) =>
+  const response = await invokeUnary<ExployerGetTransactionResponse__Output>('GetTransaction', (metadata, options, callback) =>
     client.getTransaction({ txId: decodeHex(hash) }, metadata, options, callback),
   );
 
@@ -55,7 +55,7 @@ async function getTransactionResponse(hash: string): Promise<ExployerGetTransact
 
 async function getValidatorSetResponse(height: number): Promise<GetValidatorSetResponse__Output> {
   const client = getExplorerClient();
-  return invokeUnary('GetValidatorSet', (metadata, options, callback) =>
+  return invokeUnary<GetValidatorSetResponse__Output>('GetValidatorSet', (metadata, options, callback) =>
     client.getValidatorSet({ height }, metadata, options, callback),
   );
 }
@@ -171,6 +171,8 @@ export async function getChainStats(): Promise<ChainStats> {
 }
 
 export async function deployContract(_abi: unknown[], _bytecode: string): Promise<never> {
+  void _abi;
+  void _bytecode;
   throw new UnsupportedCoreFeatureError(
     'Core v0.1.0 does not expose contract deployment over the Exployer gRPC surface.',
   );

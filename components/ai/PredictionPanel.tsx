@@ -1,7 +1,6 @@
 'use client';
 import useSWR from 'swr';
 import GlassCard from '@/components/ui/GlassCard';
-import { formatNumber } from '@/lib/utils';
 import type { Prediction } from '@/ai/predictor';
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());

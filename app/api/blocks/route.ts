@@ -23,7 +23,7 @@ export async function GET(request: Request) {
     return NextResponse.json(blocks, {
       headers: { 'X-Cache': 'MISS', 'X-RateLimit-Limit': '100' },
     });
-  } catch (_error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch blocks' }, { status: 503 });
   }
 }
