@@ -12,11 +12,11 @@ export class AnomalyAgent extends BaseAgent {
     try {
       const stats = await getChainStats();
       const anomalies = runAnomalyDetection({
-        tps: stats.tps,
-        mempoolSize: stats.mempoolSize,
+        tps: stats.tps ?? 0,
+        mempoolSize: stats.mempoolSize ?? 0,
         gasUsed: 12_000_000,
         gasLimit: 15_000_000,
-        blockTime: stats.avgBlockTime,
+        blockTime: stats.avgBlockTime ?? 0,
       });
 
       for (const anomaly of anomalies) {
@@ -25,7 +25,7 @@ export class AnomalyAgent extends BaseAgent {
           anomaly.severity,
           anomaly.message,
           this.name,
-          anomaly.metadata
+          anomaly.metadata,
         );
         this.logDecision('ALERT', anomaly.message, anomaly.score / 100);
       }
@@ -33,8 +33,8 @@ export class AnomalyAgent extends BaseAgent {
       if (anomalies.length === 0) {
         this.logDecision('MONITOR', 'Chain metrics nominal', 0.95);
       }
-    } catch (e) {
-      this.logDecision('ERROR', `Detection failed: ${(e as Error).message}`, 0, false);
+    } catch (error) {
+      this.logDecision('ERROR', `Detection failed: ${(error as Error).message}`, 0, false);
     }
   }
 }

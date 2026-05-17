@@ -6,28 +6,33 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate:core-types": "sh -c 'cd ./proto/core/v0.1.0 && proto-loader-gen-types --grpcLib=@grpc/grpc-js --longs=String --enums=String --defaults --arrays --objects --oneofs --includeComments -I . -O ../../../lib/core/generated transaction.proto block.proto consensus.proto services/exployer.proto services/wallet.proto'"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.14.3",
+    "@grpc/proto-loader": "^0.8.1",
+    "long": "^5.3.2",
     "next": "15.5.15",
+    "protobufjs": "^8.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "swr": "^2.2.5",
-    "recharts": "^2.12.7"
+    "recharts": "^2.12.7",
+    "swr": "^2.2.5"
   },
   "overrides": {
     "postcss": "^8.5.13"
   },
   "devDependencies": {
-    "typescript": "^5.5.3",
+    "@tailwindcss/forms": "^0.5.7",
     "@types/node": "^20.14.12",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "tailwindcss": "^3.4.6",
-    "@tailwindcss/forms": "^0.5.7",
     "autoprefixer": "^10.4.19",
-    "postcss": "^8.5.13",
     "eslint": "^8.57.0",
-    "eslint-config-next": "15.5.15"
+    "eslint-config-next": "15.5.15",
+    "postcss": "^8.5.13",
+    "tailwindcss": "^3.4.6",
+    "typescript": "^5.5.3"
   }
 }

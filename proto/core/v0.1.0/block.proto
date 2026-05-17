@@ -1,0 +1,56 @@
+// GXQS canonical block schema.
+//
+// This file is the SOURCE OF TRUTH for block and block-header wire format.
+// Field numbers are permanent; see proto/README.md for versioning rules.
+
+syntax = "proto3";
+
+package gxqs.v1;
+
+option go_package = "github.com/gxqs/core/proto/gen/v1;gxqsv1";
+
+import "transaction.proto";
+
+// BlockHeader contains the metadata for a GXQS block.
+// The header ID is SHA3-256 of the deterministic serialization of all fields
+// EXCEPT proposer_signature (which signs the ID).
+message BlockHeader {
+  uint64 chain_id            = 1;
+  uint64 height              = 2;
+  // parent_id is the SHA3-256 hash of the previous block header (32 bytes).
+  bytes  parent_id           = 3;
+  // state_root is the Merkle root of the world state after this block (32 bytes).
+  bytes  state_root          = 4;
+  // tx_root is the Merkle root of all transactions in this block (32 bytes).
+  bytes  tx_root             = 5;
+  // timestamp is a Unix millisecond timestamp.
+  int64  timestamp           = 6;
+  // proposer_address is the 32-byte address of the block proposer.
+  bytes  proposer_address    = 7;
+  // round is the BFT round in which this block was proposed.
+  uint32 round               = 8;
+  // proposer_signature is the proposer's PQC signature over the header ID.
+  // It is NOT included in the header ID computation.
+  bytes  proposer_signature  = 9;
+}
+
+// CommitVote is a validator's pre-commit vote for a block.
+// Validators sign either pre_vote_payload() or pre_commit_payload() to prevent
+// cross-phase signature replay.
+message CommitVote {
+  // validator_address is the 32-byte address of the signing validator.
+  bytes        validator_address = 1;
+  // block_id is the SHA3-256 hash of the voted-for block header (32 bytes).
+  bytes        block_id          = 2;
+  uint64       height            = 3;
+  uint32       round             = 4;
+  PQCSignature sig               = 5;
+}
+
+// Block is a complete GXQS block.
+message Block {
+  BlockHeader           header       = 1;
+  repeated Transaction  transactions = 2;
+  // commits holds ≥ 2/3 pre-commit votes from the validator set.
+  repeated CommitVote   commits      = 3;
+}

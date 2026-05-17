@@ -1,0 +1,135 @@
+// GXQS ExployerService — API contract for the block explorer application.
+//
+// The Exployer is a READ-ONLY consumer of Core's event stream.
+// It indexes finalized blocks and answers historical queries, but it does NOT
+// write to chain state and does NOT define its own protocol types.
+//
+// All types used here are imported from the canonical schemas in the parent
+// directory.
+
+syntax = "proto3";
+
+package gxqs.v1.services;
+
+option go_package = "github.com/gxqs/core/proto/gen/v1/services;gxqsservices";
+
+import "transaction.proto";
+import "block.proto";
+
+// ExployerService is the gRPC service consumed by the GXQS block explorer.
+service ExployerService {
+  // GetBlock retrieves a finalized block by height or block ID.
+  rpc GetBlock(ExployerGetBlockRequest) returns (ExployerGetBlockResponse);
+
+  // GetTransaction retrieves a transaction by its ID.
+  rpc GetTransaction(ExployerGetTransactionRequest) returns (ExployerGetTransactionResponse);
+
+  // ListTransactions returns transactions for a given address, optionally
+  // filtered to a block-height range.  Results are paginated.
+  rpc ListTransactions(ListTransactionsRequest) returns (ListTransactionsResponse);
+
+  // StreamBlocks streams all newly finalized blocks starting from from_height.
+  // The stream is server-sent and continues until the client disconnects.
+  rpc StreamBlocks(StreamBlocksRequest) returns (stream gxqs.v1.Block);
+
+  // GetChainInfo returns chain-level metadata (latest height, chain ID, …).
+  rpc GetChainInfo(GetChainInfoRequest) returns (GetChainInfoResponse);
+
+  // GetValidatorSet returns the active validator set at a given block height.
+  rpc GetValidatorSet(GetValidatorSetRequest) returns (GetValidatorSetResponse);
+}
+
+// ExployerGetBlockRequest selects a block by height OR by block ID.
+message ExployerGetBlockRequest {
+  uint64 height   = 1;
+  bytes  block_id = 2;
+}
+
+// ExployerGetBlockResponse wraps the requested block.
+message ExployerGetBlockResponse {
+  gxqs.v1.Block block = 1;
+  bool          found = 2;
+}
+
+// ExployerGetTransactionRequest looks up a transaction by its 32-byte ID.
+message ExployerGetTransactionRequest {
+  bytes tx_id = 1;
+}
+
+// ExployerGetTransactionResponse wraps the requested transaction and its
+// inclusion metadata.
+message ExployerGetTransactionResponse {
+  gxqs.v1.Transaction transaction   = 1;
+  uint64              block_height  = 2;
+  // position is the 0-based index of the transaction within its block.
+  uint32              position      = 3;
+  bool                found         = 4;
+}
+
+// ListTransactionsRequest paginates transactions for an address.
+message ListTransactionsRequest {
+  bytes  address     = 1;
+  uint64 from_height = 2;
+  uint64 to_height   = 3;
+  // limit caps the number of records returned (max 1000).
+  uint32 limit       = 4;
+  // page_token is the opaque continuation token from the previous response.
+  string page_token  = 5;
+}
+
+// ListTransactionsResponse carries paginated transaction records.
+message ListTransactionsResponse {
+  repeated TransactionRecord records        = 1;
+  bool                       has_more       = 2;
+  // next_page_token is set when has_more is true.
+  string                     next_page_token = 3;
+}
+
+// TransactionRecord combines a transaction with its block inclusion info.
+message TransactionRecord {
+  gxqs.v1.Transaction transaction  = 1;
+  uint64              block_height = 2;
+  // position is the 0-based index of the transaction within its block.
+  uint32              position     = 3;
+}
+
+// StreamBlocksRequest configures the block stream.
+message StreamBlocksRequest {
+  // from_height is the block height from which to start streaming.
+  // Use 0 to start from genesis.
+  uint64 from_height = 1;
+}
+
+// GetChainInfoRequest has no parameters.
+message GetChainInfoRequest {}
+
+// GetChainInfoResponse carries chain-level metadata.
+message GetChainInfoResponse {
+  uint64 chain_id           = 1;
+  uint64 latest_height      = 2;
+  // latest_block_id is the SHA3-256 hash of the most recent block (32 bytes).
+  bytes  latest_block_id    = 3;
+  int64  latest_timestamp   = 4;
+  // total_transactions is the cumulative transaction count across all blocks.
+  uint64 total_transactions = 5;
+}
+
+// GetValidatorSetRequest selects a validator set by block height.
+message GetValidatorSetRequest {
+  uint64 height = 1;
+}
+
+// GetValidatorSetResponse carries the active validator set.
+message GetValidatorSetResponse {
+  repeated ValidatorInfo validators = 1;
+  uint64                 height     = 2;
+}
+
+// ValidatorInfo describes a single active validator.
+message ValidatorInfo {
+  // address is the validator's 32-byte GXQS address.
+  bytes  address      = 1;
+  int64  voting_power = 2;
+  // public_key is the validator's serialized PQC public key.
+  bytes  public_key   = 3;
+}

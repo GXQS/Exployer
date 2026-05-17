@@ -32,8 +32,8 @@ export class MempoolAgent extends BaseAgent {
       }
 
       this.prevSize = size;
-    } catch (e) {
-      this.logDecision('ERROR', `Mempool check failed: ${(e as Error).message}`, 0, false);
+    } catch (error) {
+      this.logDecision('ERROR', `Mempool check failed: ${(error as Error).message}`, 0, false);
     }
   }
 }

@@ -1,0 +1,60 @@
+// GXQS canonical transaction schema.
+//
+// This file is the SOURCE OF TRUTH for transaction wire format.
+// Wallet and Exployer MUST consume this definition; they must NOT define their
+// own transaction types.
+//
+// VERSIONING: field numbers are permanent.  New optional fields may be added
+// with the next available field number.  Removing or renumbering fields
+// requires a MAJOR version bump.
+
+syntax = "proto3";
+
+package gxqs.v1;
+
+option go_package = "github.com/gxqs/core/proto/gen/v1;gxqsv1";
+
+// SignatureScheme identifies the post-quantum (or hybrid) algorithm used to
+// produce a digital signature.
+enum SignatureScheme {
+  SIGNATURE_SCHEME_UNSPECIFIED    = 0;
+  // ML-DSA-65 (NIST FIPS 204) — primary signing scheme.
+  SIGNATURE_SCHEME_ML_DSA_65      = 1;
+  // SLH-DSA-SHAKE-192s (NIST FIPS 205) — archival / high-value signing.
+  SIGNATURE_SCHEME_SLH_DSA_192S   = 2;
+  // Hybrid Ed25519 + Dilithium2 — transitional, classical-compatible.
+  SIGNATURE_SCHEME_HYBRID_ED_DIL2 = 3;
+}
+
+// PQCSignature is a scheme-tagged post-quantum (or hybrid) digital signature.
+// The encoding of public_key and signature bytes is scheme-specific.
+message PQCSignature {
+  SignatureScheme scheme     = 1;
+  bytes           public_key = 2;
+  bytes           signature  = 3;
+}
+
+// Transaction is the canonical GXQS transaction envelope.
+// All fields except sig are covered by the signing payload.
+//
+// Signing payload byte layout (deterministic, big-endian):
+//   chain_id(8) || nonce(8) || from(32) || to(32) || value(8) ||
+//   gas_limit(8) || gas_price(8) || timestamp(8) || data(variable)
+message Transaction {
+  uint64       chain_id  = 1;
+  uint64       nonce     = 2;
+  // from is a 32-byte GXQS address derived from the sender's PQC public key.
+  bytes        from      = 3;
+  // to is a 32-byte GXQS address.
+  bytes        to        = 4;
+  // value is the native-token amount transferred (in the smallest denomination).
+  uint64       value     = 5;
+  // data holds contract call data or arbitrary memo bytes.
+  bytes        data      = 6;
+  uint64       gas_limit = 7;
+  uint64       gas_price = 8;
+  // timestamp is a Unix millisecond timestamp set by the sender.
+  int64        timestamp = 9;
+  // sig is the PQC signature over the signing payload.
+  PQCSignature sig       = 10;
+}

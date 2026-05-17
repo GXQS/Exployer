@@ -5,7 +5,7 @@ import GlassCard from '@/components/ui/GlassCard';
 import NeonText from '@/components/ui/NeonText';
 import GlowBadge from '@/components/ui/GlowBadge';
 import { formatHash, formatGas, timeAgo } from '@/lib/utils';
-import type { Transaction } from '@/lib/rpc';
+import type { Transaction } from '@/lib/explorer-types';
 
 export default function TxPage() {
   const rawParams = useParams();
@@ -15,10 +15,19 @@ export default function TxPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
     fetch(`/api/tx/${hash}`)
-      .then(r => r.json())
-      .then(setTx)
-      .finally(() => setLoading(false));
+      .then(async response => (response.ok ? response.json() : null))
+      .then(payload => {
+        if (!cancelled) setTx(payload);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [hash]);
 
   if (loading) return (
@@ -42,6 +51,8 @@ export default function TxPage() {
     </div>
   );
 
+  const statusColor = tx.status === 'success' ? 'green' : tx.status === 'failed' ? 'red' : 'cyan';
+
   return (
     <div className="p-6 space-y-6">
       <div>
@@ -53,17 +64,17 @@ export default function TxPage() {
         <div className="grid grid-cols-1 gap-4">
           {[
             { label: 'Hash', value: formatHash(tx.hash, 20) },
-            { label: 'Status', value: <GlowBadge label={tx.status.toUpperCase()} color={tx.status === 'success' ? 'green' : 'red'} /> },
-            { label: 'Block', value: `#${tx.blockHeight}` },
-            { label: 'From', value: tx.from },
-            { label: 'To', value: tx.to },
+            { label: 'Status', value: <GlowBadge label={tx.status.toUpperCase()} color={statusColor} /> },
+            { label: 'Block', value: tx.blockHeight != null ? `#${tx.blockHeight}` : '—' },
+            { label: 'From', value: tx.from ?? '—' },
+            { label: 'To', value: tx.to ?? '—' },
             { label: 'Value', value: tx.value },
-            { label: 'Gas Used', value: formatGas(tx.gasUsed) },
-            { label: 'Gas Price', value: `${tx.gasPrice} gwei` },
-            { label: 'Type', value: <GlowBadge label={tx.type?.toUpperCase() ?? 'TX'} color="cyan" /> },
+            { label: 'Gas Used', value: tx.gasUsed != null ? formatGas(tx.gasUsed) : '—' },
+            { label: 'Gas Price', value: tx.gasPrice != null ? `${tx.gasPrice} gwei` : '—' },
+            { label: 'Type', value: <GlowBadge label={tx.type.toUpperCase()} color="cyan" /> },
             { label: 'Timestamp', value: timeAgo(tx.timestamp) },
           ].map(row => (
-    <div key={row.label} className="flex items-center gap-4 py-2 border-b border-[rgba(255,255,255,0.03)]">
+            <div key={row.label} className="flex items-center gap-4 py-2 border-b border-[rgba(255,255,255,0.03)]">
               <div className="w-24 text-xs font-mono text-gray-600 uppercase shrink-0">{row.label}</div>
               <div className="text-sm font-mono text-gray-200 flex-1">{row.value}</div>
             </div>

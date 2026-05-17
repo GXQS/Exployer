@@ -1,0 +1,74 @@
+// GXQS canonical consensus protocol schema.
+//
+// This file is the SOURCE OF TRUTH for all consensus message types.
+// The consensus protocol is deterministic and replayable: the same inputs
+// always produce the same outputs with no external randomness.
+
+syntax = "proto3";
+
+package gxqs.v1;
+
+option go_package = "github.com/gxqs/core/proto/gen/v1;gxqsv1";
+
+import "block.proto";
+
+// ConsensusStep enumerates the phases of a single BFT round.
+enum ConsensusStep {
+  CONSENSUS_STEP_UNSPECIFIED  = 0;
+  CONSENSUS_STEP_PROPOSE      = 1;
+  CONSENSUS_STEP_PRE_VOTE     = 2;
+  CONSENSUS_STEP_PRE_COMMIT   = 3;
+  CONSENSUS_STEP_FINAL        = 4;
+}
+
+// ProposalMsg carries a proposed block from the designated proposer.
+// The proposer signs the block's header ID with its PQC key.
+message ProposalMsg {
+  Block        block     = 1;
+  PQCSignature signature = 2;
+}
+
+// PreVoteMsg carries a validator's pre-vote for a block ID.
+// The signing payload is domain-separated with byte 0x01 to prevent replay as
+// a pre-commit (see CommitVote.pre_vote_payload specification).
+message PreVoteMsg {
+  CommitVote   vote      = 1;
+  PQCSignature signature = 2;
+}
+
+// PreCommitMsg carries a validator's pre-commit for a block ID.
+// The signing payload is domain-separated with byte 0x02.
+message PreCommitMsg {
+  CommitVote   vote      = 1;
+  PQCSignature signature = 2;
+}
+
+// QuorumCertificate aggregates ≥ 2/3 pre-commit votes for a block.
+// A QC is the proof of finality for a block height.
+message QuorumCertificate {
+  bytes                 block_id = 1;
+  uint64                height   = 2;
+  uint32                round    = 3;
+  repeated CommitVote   votes    = 4;
+}
+
+// ValidatorUpdate announces a change to the active validator set.
+// A new set takes effect at next_height.
+message ValidatorUpdate {
+  bytes  address      = 1;
+  bytes  public_key   = 2;
+  int64  voting_power = 3;
+  uint64 next_height  = 4;
+  // remove, when true, removes the validator from the active set.
+  bool   remove       = 5;
+}
+
+// ConsensusState is a snapshot of the consensus engine state at a given
+// height and round, used for deterministic replay and state-sync.
+message ConsensusState {
+  uint64         height    = 1;
+  uint32         round     = 2;
+  ConsensusStep  step      = 3;
+  bytes          locked_id = 4;
+  bytes          valid_id  = 5;
+}

@@ -1,11 +1,5 @@
 type Listener<T> = (data: T) => void;
 
-interface PollingConfig {
-  interval: number;
-  onData: <T>(data: T) => void;
-  onError?: (error: Error) => void;
-}
-
 export class PollingManager {
   private timers = new Map<string, NodeJS.Timeout>();
 
